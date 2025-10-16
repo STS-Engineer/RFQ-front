@@ -24,39 +24,31 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build React app
-        run: npm run build
+      - name:  build
+        run: | 
+          CI=false 
+          npm run build --if-present
 
-      # Package ONLY the contents of build/ (so they land at /home/site/wwwroot)
-      - name: Prepare deployable artifact (wwwroot contents)
-        run: |
-          rm -rf artifact
-          mkdir -p artifact
-          cp -r build/* artifact/
-
-      - name: Upload artifact
+      - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
-          name: site
-          path: artifact
-          if-no-files-found: error
+          name: node-app
+          path: .
 
   deploy:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - name: Download artifact
+      - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
-          name: site
-          path: artifact
+          name: RFQ-APP
+          
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'rfq-management'
           slot-name: 'Production'
-          package: artifact
+          package: .
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_FF8D0A0E8CC446A18C4CA9176671B031 }}
-          startup-command: >
-            npx http-server /home/site/wwwroot -p ${PORT:-8080} --proxy http://localhost:${PORT:-8080}?
