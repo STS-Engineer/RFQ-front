@@ -1,3 +1,59 @@
+/* Participants layout */
+.participants-section {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.participant-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.participant-icon {
+  flex: 0 0 auto;
+}
+
+.requester-icon {
+  color: #2563eb;   /* blue */
+}
+.validator-icon {
+  color: #16a34a;   /* green */
+}
+
+.participant-info label {
+  display: block;
+  font-weight: 600;
+  color: #475569;
+  font-size: 13px;
+  margin-bottom: 2px;
+}
+.participant-info span {
+  color: #1e293b;
+  word-break: break-word;
+}
+
+/* Stack on small screens */
+@media (max-width: 768px) {
+  .participants-section {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Fix a small typo elsewhere so flex rows behave correctly */
+.detail-item {
+  display: flex;
+  justify-content: space-between; /* was 'between' which is invalid */
+  align-items: flex-start;
+  gap: 12px;
+}
+
+
 /* components/RFQModal.css */
 .modal-overlay {
   position: fixed;
