@@ -24,28 +24,24 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name:  build
-        run: | 
-          CI=false 
-          npm run build --if-present
+      - name: Build React app
+        run: npm run build
 
-      - name: Upload artifact for deployment job
+      - name: Upload build folder for deployment
         uses: actions/upload-artifact@v4
         with:
-          name: node-app
-          path: .
+          name: react-build
+          path: build
 
   deploy:
     runs-on: ubuntu-latest
     needs: build
-    permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
     steps:
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
-          name: node-app
+          name: react-build
+          path: build
           
 
       - name: Deploy to Azure Web App
@@ -55,4 +51,5 @@ jobs:
           slot-name: 'Production'
           package: .
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_FF8D0A0E8CC446A18C4CA9176671B031 }}
+
 
