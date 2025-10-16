@@ -205,14 +205,14 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
           <h3 className="section-title">Participants</h3>
           <div className="section-content participants-section">
           <div className="participant-card">
-           <UserPlus className="participant-icon requester-icon" size={24} />
+           
           <div className="participant-info">
             <label>Requester</label>
             <span>{rfq.created_by_email || 'N/A'}</span>
          </div>
          </div>
           <div className="participant-card">
-           <UserCheck className="participant-icon validator-icon" size={24} />
+           
          <div className="participant-info">
         <label>Validator</label>
         <span>{rfq.validated_by_email || 'N/A'}</span>
