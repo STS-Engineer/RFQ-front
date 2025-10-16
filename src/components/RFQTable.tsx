@@ -12,7 +12,7 @@ const RFQTable: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({
     rfq_id: '',
-    customer_name: '',
+    customer_name: '',   
     product_line: '',
     customer_pn: '',
     annual_volume_min: '',
