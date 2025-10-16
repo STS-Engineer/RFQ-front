@@ -8,8 +8,8 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
+import { UserCheck, UserPlus } from 'lucide-react';
 import logo from "../assets/logo-avocarbon-1-removebg-preview.png"; 
-
 
 interface RFQModalProps {
   rfq: RFQ;
@@ -175,7 +175,17 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
     });
   };
 
-
+  const getStatusColor = (status: string) => {
+    const colors: { [key: string]: string } = {
+      'pending': '#ffb300',
+      'approved': '#4caf50',
+      'rejected': '#f44336',
+      'in_review': '#2196f3',
+      'completed': '#9c27b0',
+      'continu': '#2196f3'
+    };
+    return colors[status] || '#666';
+  };
 
   return (
     <div className="modal-overlay" onClick={handleOverlayClick}>
@@ -200,26 +210,26 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
 
         <div className="modal-body" id="rfq-modal-content">
           <div className="details-grid">
-           {/* Requester & Validator */}
-          <div className="detail-section">   
-          <h3 className="section-title">Participants</h3>
-          <div className="section-content participants-section">
-          <div className="participant-card">
-           
-          <div className="participant-info">
-            <label>Requester</label>
-            <span>{rfq.created_by_email || 'N/A'}</span>
-         </div>
-         </div>
-          <div className="participant-card">
-           
-         <div className="participant-info">
+                        {/* Requester & Validator */}
+<div className="detail-section">
+  <h3 className="section-title">Participants</h3>
+  <div className="section-content participants-section">
+    <div className="participant-card">
+      <UserPlus className="participant-icon requester-icon" size={24} />
+      <div className="participant-info">
+        <label>Requester</label>
+        <span>{rfq.created_by_email || 'N/A'}</span>
+      </div>
+    </div>
+    <div className="participant-card">
+      <UserCheck className="participant-icon validator-icon" size={24} />
+      <div className="participant-info">
         <label>Validator</label>
         <span>{rfq.validated_by_email || 'N/A'}</span>
-           </div>
-          </div>
-           </div>
-          </div>
+      </div>
+    </div>
+     </div>
+   </div>
 
             {/* Customer Information */}
             <div className="detail-section">
@@ -297,6 +307,10 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
                 </div>
               </div>
             </div>
+
+
+
+
 
             {/* Timeline */}
             <div className="detail-section">
