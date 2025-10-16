@@ -9,7 +9,7 @@ import html2canvas from 'html2canvas';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import logo from "../assets/logo-avocarbon-1-removebg-preview.png"; 
-import { UserCheck, UserPlus } from 'lucide-react';
+
 
 interface RFQModalProps {
   rfq: RFQ;
