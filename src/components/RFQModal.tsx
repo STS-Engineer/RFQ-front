@@ -201,7 +201,7 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
         <div className="modal-body" id="rfq-modal-content">
           <div className="details-grid">
            {/* Requester & Validator */}
-          <div className="detail-section">
+          <div className="detail-section">   
           <h3 className="section-title">Participants</h3>
           <div className="section-content participants-section">
           <div className="participant-card">
