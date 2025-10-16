@@ -174,17 +174,7 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
     });
   };
 
-  const getStatusColor = (status: string) => {
-    const colors: { [key: string]: string } = {
-      'pending': '#ffb300',
-      'approved': '#4caf50',
-      'rejected': '#f44336',
-      'in_review': '#2196f3',
-      'completed': '#9c27b0',
-      'continu': '#2196f3'
-    };
-    return colors[status] || '#666';
-  };
+
 
   return (
     <div className="modal-overlay" onClick={handleOverlayClick}>
