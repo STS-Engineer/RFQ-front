@@ -9,6 +9,7 @@ import html2canvas from 'html2canvas';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import logo from "../assets/logo-avocarbon-1-removebg-preview.png"; 
+import { UserCheck, UserPlus } from 'lucide-react';
 
 interface RFQModalProps {
   rfq: RFQ;
@@ -199,6 +200,27 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
 
         <div className="modal-body" id="rfq-modal-content">
           <div className="details-grid">
+           {/* Requester & Validator */}
+          <div className="detail-section">
+          <h3 className="section-title">Participants</h3>
+          <div className="section-content participants-section">
+          <div className="participant-card">
+           <UserPlus className="participant-icon requester-icon" size={24} />
+          <div className="participant-info">
+            <label>Requester</label>
+            <span>{rfq.created_by_email || 'N/A'}</span>
+         </div>
+         </div>
+          <div className="participant-card">
+           <UserCheck className="participant-icon validator-icon" size={24} />
+         <div className="participant-info">
+        <label>Validator</label>
+        <span>{rfq.validated_by_email || 'N/A'}</span>
+           </div>
+          </div>
+           </div>
+          </div>
+
             {/* Customer Information */}
             <div className="detail-section">
               <h3 className="section-title">Customer Information</h3>
