@@ -1,14 +1,14 @@
 // types/rfq.ts
 export interface Contact {
-  contact_id: number;
+  contact_id?: number; // Optional for pending RFQs
   contact_role: string;
   contact_email: string;
   contact_phone: string;
-  contact_created_at: string;
+  contact_created_at?: string; // Optional for pending RFQs
 }
 
 export interface RFQ {
-  rfq_id: number;
+  rfq_id: string; // Changed to string to match "2532-ASS-00" format
   customer_name: string;
   application: string;
   product_line: string;
@@ -32,9 +32,9 @@ export interface RFQ {
   design_responsibility: string;
   validation_responsibility: string;
   design_ownership: string;
-  development_costs: number;
-  technical_capacity: string;
-  scope_alignment: string;
+  development_costs: string; // Changed to string to match "None" or other text values
+  technical_capacity: boolean | string; // Support both boolean (pending) and string (confirmed/declined)
+  scope_alignment: boolean | string; // Support both boolean (pending) and string (confirmed/declined)
   overall_feasibility: string;
   customer_status: string;
   strategic_note: string;
@@ -42,9 +42,11 @@ export interface RFQ {
   validator_comments: string;
   status: string;
   rfq_created_at: string;
-  contact_id: number;
+  contact_id?: number; // Optional for pending RFQs
   contact_role: string;
   contact_email: string;
   contact_phone: string;
-  contact_created_at: string;
+  contact_created_at?: string; // Optional for pending RFQs
+  created_by_email?: string; // Requester email
+  validated_by_email?: string; // Validator email
 }
