@@ -341,6 +341,7 @@ const RFQTable: React.FC = () => {
           <thead>
             <tr>
               <th>RFQ ID</th>
+              <th>Requester</th> 
               <th>Customer</th>
               <th>Product Line</th>
               <th>Customer PN</th>
@@ -354,6 +355,7 @@ const RFQTable: React.FC = () => {
             {filteredRfqs.map((rfq) => (
               <tr key={rfq.rfq_id} className="table-row">
                 <td className="rfq-id">{rfq.rfq_id}</td>
+                <td className="requester-cell">{rfq.created_by_email}</td>
                 <td className="customer-cell">
                   <div className="customer-info">
                     <div className="customer-name">{rfq.customer_name}</div>
