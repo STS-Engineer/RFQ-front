@@ -12,7 +12,8 @@ const RFQTable: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({
     rfq_id: '',
-    customer_name: '',   
+    customer_name: '',
+    created_by_email: '',  
     product_line: '',
     customer_pn: '',
     annual_volume_min: '',
@@ -53,6 +54,7 @@ const RFQTable: React.FC = () => {
     setFilters({
       rfq_id: '',
       customer_name: '',
+      created_by_email: '',
       product_line: '',
       customer_pn: '',
       annual_volume_min: '',
@@ -67,6 +69,7 @@ const RFQTable: React.FC = () => {
     // Global search
     const matchesSearch = searchTerm === '' || 
       rfq.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      rfq.created_by_email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       rfq.customer_pn.toLowerCase().includes(searchTerm.toLowerCase()) ||
       rfq.product_line.toLowerCase().includes(searchTerm.toLowerCase()) ||
       rfq.rfq_id.toString().includes(searchTerm) ||
@@ -76,6 +79,8 @@ const RFQTable: React.FC = () => {
     const matchesRfqId = filters.rfq_id === '' || rfq.rfq_id.toString().includes(filters.rfq_id);
     const matchesCustomerName = filters.customer_name === '' || 
       rfq.customer_name.toLowerCase().includes(filters.customer_name.toLowerCase());
+     const matchescreated_by_email = filters.created_by_email === '' || 
+      rfq.created_by_email.toLowerCase().includes(filters.created_by_email.toLowerCase());
     const matchesProductLine = filters.product_line === '' || 
       rfq.product_line.toLowerCase().includes(filters.product_line.toLowerCase());
     const matchesCustomerPn = filters.customer_pn === '' || 
@@ -156,6 +161,17 @@ const RFQTable: React.FC = () => {
               className="filter-input"
             />
              
+          </div>
+          <div className="filter-group">
+            <label htmlFor="created_by_email-filter">Requester</label>
+            <input
+              id="created_by_email-filter"
+              type="text"
+              placeholder="Filter by created_by_email..."
+              value={filters.created_by_email}
+              onChange={(e) => handleFilterChange('created_by_email', e.target.value)}
+              className="filter-input"
+            />
           </div>
 
           <div className="filter-group">
@@ -259,12 +275,21 @@ const RFQTable: React.FC = () => {
               <button onClick={() => handleFilterChange('rfq_id', '')}>×</button>
             </span>
           )}
+
+           {filters.created_by_email && (
+            <span className="filter-tag">
+              Requester: {filters.created_by_email}
+              <button onClick={() => handleFilterChange('created_by_email', '')}>×</button>
+            </span>
+          )}
+          
           {filters.customer_name && (
             <span className="filter-tag">
               Customer: {filters.customer_name}
               <button onClick={() => handleFilterChange('customer_name', '')}>×</button>
             </span>
           )}
+
           {filters.product_line && (
             <span className="filter-tag">
               Product Line: {filters.product_line}
