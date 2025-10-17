@@ -600,12 +600,48 @@
   transform: scale(1.1);
 }
 
+
 .no-filters {
   color: #a0aec0;
   font-style: italic;
   font-size: 14px;
   padding: 8px 0;
 }
+
+/* Container for tabs */
+.rfq-tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+/* Tab buttons */
+.tab-btn {
+  padding: 10px 25px;
+  border: none;
+  border-radius: 25px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #333;
+  background: #f0f0f0;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+}
+
+/* Active tab styles */
+.tab-btn.active {
+  color: white;
+  background: linear-gradient(135deg, #6a11cb, #2575fc); /* purple-blue gradient */
+  box-shadow: 0 4px 12px rgba(37, 117, 252, 0.3);
+}
+
+/* Hover effect for all tabs */
+.tab-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(37, 117, 252, 0.3);
+}
+
 
 /* Animations */
 @keyframes slideIn {
