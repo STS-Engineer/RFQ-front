@@ -1,15 +1,13 @@
 // components/RFQModal.tsx
-import React from 'react';
+import React, { useEffect } from 'react';
 import { RFQ } from '../types/rfq';
 import './RFQModal.css';
-
-// Import export libraries
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import { UserCheck, UserPlus } from 'lucide-react';
-import logo from "../assets/logo-avocarbon-1-removebg-preview.png"; 
+import logo from '../assets/logo-avocarbon-1-removebg-preview.png';
 
 interface RFQModalProps {
   rfq: RFQ;
@@ -18,6 +16,15 @@ interface RFQModalProps {
 }
 
 const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
+  useEffect(() => {
+    if (isOpen) {
+      console.log('RFQ data in modal:', rfq);
+      console.log('RFQ status:', rfq.status);
+      console.log('RFQ technical_capacity type:', typeof rfq.technical_capacity, 'value:', rfq.technical_capacity);
+      console.log('RFQ scope_alignment type:', typeof rfq.scope_alignment, 'value:', rfq.scope_alignment);
+    }
+  }, [isOpen, rfq]);
+
   if (!isOpen) return null;
 
   const handleOverlayClick = (e: React.MouseEvent) => {
@@ -26,7 +33,6 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
     }
   };
 
-  // Export to PDF function
   const exportToPDF = async () => {
     try {
       const element = document.getElementById('rfq-modal-content');
@@ -36,7 +42,7 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
         scale: 2,
         useCORS: true,
         logging: false,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
       });
 
       const imgData = canvas.toDataURL('image/png');
@@ -44,7 +50,7 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
       const imgWidth = 210;
       const pageHeight = 295;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      
+
       let heightLeft = imgHeight;
       let position = 0;
 
@@ -59,14 +65,12 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
       }
 
       pdf.save(`RFQ_${rfq.rfq_id}_${rfq.customer_name}.pdf`);
-
     } catch (error) {
       console.error('Error generating PDF:', error);
       alert('Error generating PDF. Please try again.');
     }
   };
 
-  // Export to Excel function
   const exportToExcel = () => {
     try {
       const excelData = [
@@ -89,25 +93,25 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
         ['', ''],
         ['BUSINESS DETAILS', ''],
         ['Annual Volume', rfq.annual_volume],
-        ['Target Price (EUR)', `€${rfq.target_price_eur?.toLocaleString()}`],
-        ['Development Costs', `€${rfq.development_costs?.toLocaleString()}`],
+        ['Target Price (EUR)', `€${rfq.target_price_eur || 0}`],
+        ['Development Costs', rfq.development_costs || 'N/A'], // Treat as string
         ['Payment Terms', rfq.payment_terms],
         ['Delivery Conditions', rfq.delivery_conditions],
         ['Business Trigger', rfq.business_trigger],
         ['', ''],
         ['TIMELINE INFORMATION', ''],
-        ['RFQ Reception Date', new Date(rfq.rfq_reception_date).toLocaleDateString()],
-        ['Quotation Expected Date', new Date(rfq.quotation_expected_date).toLocaleDateString()],
+        ['RFQ Reception Date', rfq.rfq_reception_date],
+        ['Quotation Expected Date', rfq.quotation_expected_date],
         ['SOP Year', rfq.sop_year],
-        ['RFQ Created At', new Date(rfq.rfq_created_at).toLocaleDateString()],
+        ['RFQ Created At', rfq.rfq_created_at],
         ['', ''],
         ['TECHNICAL DETAILS', ''],
         ['Manufacturing Location', rfq.manufacturing_location],
         ['Design Responsibility', rfq.design_responsibility],
         ['Validation Responsibility', rfq.validation_responsibility],
         ['Design Ownership', rfq.design_ownership],
-        ['Technical Capacity', rfq.technical_capacity],
-        ['Scope Alignment', rfq.scope_alignment],
+        ['Technical Capacity', formatBoolean(rfq.technical_capacity)],
+        ['Scope Alignment', formatBoolean(rfq.scope_alignment)],
         ['Overall Feasibility', rfq.overall_feasibility],
         ['', ''],
         ['RISK & DECISION', ''],
@@ -120,47 +124,18 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
         ['Product Feasibility Note', rfq.product_feasibility_note || 'N/A'],
         ['Strategic Note', rfq.strategic_note || 'N/A'],
         ['Validator Comments', rfq.validator_comments || 'N/A'],
-        ['Final Recommendation', rfq.final_recommendation || 'N/A']
+        ['Final Recommendation', rfq.final_recommendation || 'N/A'],
       ];
 
       const wb = XLSX.utils.book_new();
       const ws = XLSX.utils.aoa_to_sheet(excelData);
-
-      // Set column widths
-      const colWidths = [
-        { wch: 30 },
-        { wch: 50 }
-      ];
-      ws['!cols'] = colWidths;
-
-      // Style headers
-      for (let i = 0; i < excelData.length; i++) {
-        if (excelData[i][0] && (excelData[i][0].includes('REPORT') || 
-            excelData[i][0].includes('INFORMATION') || 
-            excelData[i][0].includes('DETAILS') || 
-            excelData[i][0].includes('NOTES'))) {
-          if (!ws[`A${i + 1}`]) ws[`A${i + 1}`] = {};
-          if (!ws[`B${i + 1}`]) ws[`B${i + 1}`] = {};
-          
-          ws[`A${i + 1}`].s = {
-            font: { bold: true, sz: 12 },
-            fill: { fgColor: { rgb: "E8F4FF" } }
-          };
-          ws[`B${i + 1}`].s = {
-            font: { bold: true, sz: 12 },
-            fill: { fgColor: { rgb: "E8F4FF" } }
-          };
-        }
-      }
-
       XLSX.utils.book_append_sheet(wb, ws, 'RFQ Details');
       const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-      const data = new Blob([excelBuffer], { 
-        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+      const data = new Blob([excelBuffer], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       });
-      
-      saveAs(data, `RFQ_${rfq.rfq_id}_${rfq.customer_name}_Details.xlsx`);
 
+      saveAs(data, `RFQ_${rfq.rfq_id}_${rfq.customer_name}_Details.xlsx`);
     } catch (error) {
       console.error('Error generating Excel:', error);
       alert('Error generating Excel file. Please try again.');
@@ -168,31 +143,46 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
+    if (!dateString) return 'N/A';
+    try {
+      const date = new Date(dateString);
+      return isNaN(date.getTime())
+        ? 'N/A'
+        : date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+          });
+    } catch (error) {
+      return 'N/A';
+    }
   };
 
+  const formatBoolean = (value: boolean | string | null | undefined) => {
+    if (value === null || value === undefined) return 'N/A';
+    if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+    if (typeof value === 'string') {
+      const lowerValue = value.toLowerCase();
+      return lowerValue === 'true' || lowerValue === 'yes' ? 'Yes' : lowerValue === 'false' || lowerValue === 'no' ? 'No' : value;
+    }
+    return 'N/A';
+  };
 
+  const getSafeValue = (value: any, defaultValue: string = 'N/A') => {
+    return value !== null && value !== undefined && value !== '' ? value : defaultValue;
+  };
 
   return (
     <div className="modal-overlay" onClick={handleOverlayClick}>
       <div className="modal-content">
         <div className="modal-header">
           <div className="modal-header-left">
-            <div >
-              <img 
-                src={logo}  
-                alt="AvoCarbon Logo" 
-                className="logo-img"
-              />
-           
-            </div>
+            <img src={logo} alt="AvoCarbon Logo" className="logo-img" />
             <div className="modal-title">
               <h2>RFQ Details - #{rfq.rfq_id}</h2>
-          
+              <span className={`status-badge status-${rfq.status?.toLowerCase()}`}>
+                {rfq.status}
+              </span>
             </div>
           </div>
           <button className="close-btn" onClick={onClose}>×</button>
@@ -200,69 +190,69 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
 
         <div className="modal-body" id="rfq-modal-content">
           <div className="details-grid">
-                        {/* Requester & Validator */}
-<div className="detail-section">
-  <h3 className="section-title">Participants</h3>
-  <div className="section-content participants-section">
-    <div className="participant-card">
-      <UserPlus className="participant-icon requester-icon" size={24} />
-      <div className="participant-info">
-        <label>Requester</label>
-        <span>{rfq.created_by_email || 'N/A'}</span>
-      </div>
-    </div>
-    <div className="participant-card">
-      <UserCheck className="participant-icon validator-icon" size={24} />
-      <div className="participant-info">
-        <label>Validator</label>
-        <span>{rfq.validated_by_email || 'N/A'}</span>
-      </div>
-    </div>
-     </div>
-   </div>
+            {/* Participants */}
+            <div className="detail-section">
+              <h3 className="section-title">Participants</h3>
+              <div className="section-content participants-section">
+                <div className="participant-card">
+                  <UserPlus className="participant-icon requester-icon" size={24} />
+                  <div className="participant-info">
+                    <label>Requester</label>
+                    <span>{getSafeValue(rfq.created_by_email)}</span>
+                  </div>
+                </div>
+                <div className="participant-card">
+                  <UserCheck className="participant-icon validator-icon" size={24} />
+                  <div className="participant-info">
+                    <label>Validator</label>
+                    <span>{getSafeValue(rfq.validated_by_email)}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-            {/* Customer Information */}
+            {/* Customer Info */}
             <div className="detail-section">
               <h3 className="section-title">Customer Information</h3>
               <div className="section-content">
                 <div className="detail-item">
                   <label>Customer Name</label>
-                  <span>{rfq.customer_name}</span>
+                  <span>{getSafeValue(rfq.customer_name)}</span>
                 </div>
                 <div className="detail-item">
                   <label>Application</label>
-                  <span>{rfq.application}</span>
+                  <span>{getSafeValue(rfq.application)}</span>
                 </div>
                 <div className="detail-item">
                   <label>Product Line</label>
-                  <span>{rfq.product_line}</span>
+                  <span>{getSafeValue(rfq.product_line)}</span>
                 </div>
                 <div className="detail-item">
-                  <label>Customer Part Number</label>
-                  <span className="customer-pn">{rfq.customer_pn}</span>
+                  <label>Customer PN</label>
+                  <span>{getSafeValue(rfq.customer_pn)}</span>
                 </div>
                 <div className="detail-item">
                   <label>Revision Level</label>
-                  <span>{rfq.revision_level}</span>
+                  <span>{getSafeValue(rfq.revision_level)}</span>
                 </div>
               </div>
             </div>
 
-            {/* Contact Information */}
+            {/* Contact Info */}
             <div className="detail-section">
               <h3 className="section-title">Contact Information</h3>
               <div className="section-content">
                 <div className="detail-item">
                   <label>Contact Role</label>
-                  <span>{rfq.contact_role}</span>
+                  <span>{getSafeValue(rfq.contact_role)}</span>
                 </div>
                 <div className="detail-item">
                   <label>Email</label>
-                  <span className="email">{rfq.contact_email}</span>
+                  <span>{getSafeValue(rfq.contact_email)}</span>
                 </div>
                 <div className="detail-item">
                   <label>Phone</label>
-                  <span>{rfq.contact_phone}</span>
+                  <span>{getSafeValue(rfq.contact_phone)}</span>
                 </div>
               </div>
             </div>
@@ -273,34 +263,30 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
               <div className="section-content">
                 <div className="detail-item">
                   <label>Annual Volume</label>
-                  <span>{rfq.annual_volume?.toLocaleString()}</span>
+                  <span>{(rfq.annual_volume || 0).toLocaleString()}</span>
                 </div>
                 <div className="detail-item">
                   <label>Target Price</label>
-                  <span className="price">€{rfq.target_price_eur?.toLocaleString()}</span>
+                  <span>€{(rfq.target_price_eur || 0).toLocaleString()}</span>
                 </div>
                 <div className="detail-item">
                   <label>Development Costs</label>
-                  <span>€{rfq.development_costs?.toLocaleString()}</span>
+                  <span>{getSafeValue(rfq.development_costs)}</span>
                 </div>
                 <div className="detail-item">
                   <label>Payment Terms</label>
-                  <span>{rfq.payment_terms}</span>
+                  <span>{getSafeValue(rfq.payment_terms)}</span>
                 </div>
                 <div className="detail-item">
                   <label>Delivery Conditions</label>
-                  <span>{rfq.delivery_conditions}</span>
+                  <span>{getSafeValue(rfq.delivery_conditions)}</span>
                 </div>
                 <div className="detail-item">
                   <label>Business Trigger</label>
-                  <span>{rfq.business_trigger}</span>
+                  <span>{getSafeValue(rfq.business_trigger)}</span>
                 </div>
               </div>
             </div>
-
-
-
-
 
             {/* Timeline */}
             <div className="detail-section">
@@ -316,7 +302,7 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
                 </div>
                 <div className="detail-item">
                   <label>SOP Year</label>
-                  <span>{rfq.sop_year}</span>
+                  <span>{getSafeValue(rfq.sop_year)}</span>
                 </div>
                 <div className="detail-item">
                   <label>RFQ Created</label>
@@ -331,31 +317,31 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
               <div className="section-content">
                 <div className="detail-item">
                   <label>Manufacturing Location</label>
-                  <span>{rfq.manufacturing_location}</span>
+                  <span>{getSafeValue(rfq.manufacturing_location)}</span>
                 </div>
                 <div className="detail-item">
                   <label>Design Responsibility</label>
-                  <span>{rfq.design_responsibility}</span>
+                  <span>{getSafeValue(rfq.design_responsibility)}</span>
                 </div>
                 <div className="detail-item">
                   <label>Validation Responsibility</label>
-                  <span>{rfq.validation_responsibility}</span>
+                  <span>{getSafeValue(rfq.validation_responsibility)}</span>
                 </div>
                 <div className="detail-item">
                   <label>Design Ownership</label>
-                  <span>{rfq.design_ownership}</span>
+                  <span>{getSafeValue(rfq.design_ownership)}</span>
                 </div>
                 <div className="detail-item">
                   <label>Technical Capacity</label>
-                  <span>{rfq.technical_capacity}</span>
+                  <span>{formatBoolean(rfq.technical_capacity)}</span>
                 </div>
                 <div className="detail-item">
                   <label>Scope Alignment</label>
-                  <span>{rfq.scope_alignment}</span>
+                  <span>{formatBoolean(rfq.scope_alignment)}</span>
                 </div>
                 <div className="detail-item">
                   <label>Overall Feasibility</label>
-                  <span>{rfq.overall_feasibility}</span>
+                  <span>{getSafeValue(rfq.overall_feasibility)}</span>
                 </div>
               </div>
             </div>
@@ -366,23 +352,45 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
               <div className="section-content">
                 <div className="detail-item">
                   <label>Risks</label>
-                  <span>{rfq.risks || 'N/A'}</span>
+                  <span>{getSafeValue(rfq.risks)}</span>
                 </div>
                 <div className="detail-item">
                   <label>Decision</label>
-                  <span>{rfq.decision || 'N/A'}</span>
+                  <span>{getSafeValue(rfq.decision)}</span>
                 </div>
                 <div className="detail-item">
                   <label>Entry Barriers</label>
-                  <span>{rfq.entry_barriers || 'N/A'}</span>
+                  <span>{getSafeValue(rfq.entry_barriers)}</span>
                 </div>
                 <div className="detail-item">
                   <label>Customer Status</label>
-                  <span>{rfq.customer_status || 'N/A'}</span>
+                  <span>{getSafeValue(rfq.customer_status)}</span>
                 </div>
               </div>
             </div>
 
+            {/* Notes & Comments */}
+            <div className="detail-section">
+              <h3 className="section-title">Notes & Comments</h3>
+              <div className="section-content">
+                <div className="detail-item full-width">
+                  <label>Product Feasibility Note</label>
+                  <span>{getSafeValue(rfq.product_feasibility_note)}</span>
+                </div>
+                <div className="detail-item full-width">
+                  <label>Strategic Note</label>
+                  <span>{getSafeValue(rfq.strategic_note)}</span>
+                </div>
+                <div className="detail-item full-width">
+                  <label>Validator Comments</label>
+                  <span>{getSafeValue(rfq.validator_comments)}</span>
+                </div>
+                <div className="detail-item full-width">
+                  <label>Final Recommendation</label>
+                  <span>{getSafeValue(rfq.final_recommendation)}</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -392,12 +400,10 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
           </button>
           <div className="footer-export-buttons">
             <button className="btn-export pdf-export" onClick={exportToPDF}>
-              <span className="export-icon">📄</span>
-              Download PDF
+              📄 Download PDF
             </button>
             <button className="btn-export excel-export" onClick={exportToExcel}>
-              <span className="export-icon">📊</span>
-              Download Excel
+              📊 Download Excel
             </button>
           </div>
         </div>
