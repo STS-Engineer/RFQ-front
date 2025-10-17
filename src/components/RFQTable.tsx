@@ -79,8 +79,6 @@ const RFQTable: React.FC = () => {
     const matchesRfqId = filters.rfq_id === '' || rfq.rfq_id.toString().includes(filters.rfq_id);
     const matchesCustomerName = filters.customer_name === '' || 
       rfq.customer_name.toLowerCase().includes(filters.customer_name.toLowerCase());
-     const matchescreated_by_email = filters.created_by_email === '' || 
-      rfq.created_by_email.toLowerCase().includes(filters.created_by_email.toLowerCase());
     const matchesProductLine = filters.product_line === '' || 
       rfq.product_line.toLowerCase().includes(filters.product_line.toLowerCase());
     const matchesCustomerPn = filters.customer_pn === '' || 
