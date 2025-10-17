@@ -39,7 +39,7 @@ const RFQTable: React.FC = () => {
 
   const fetchGroupedRFQs = async () => {
     try {
-      const response = await fetch('https://rfq-management.azurewebsites.net/ajouter/rfq');
+      const response = await fetch('https://rfq-back.azurewebsites.net/ajouter/rfq');
       const data: GroupedRFQs = await response.json();
       setGroupedRfqs(data);
     } catch (error) {
