@@ -31,7 +31,8 @@ const RFQTable: React.FC = () => {
   target_price_max: '',
   to_total_min: '',
   to_total_max: '',
-  requester: ''
+  requester: '',
+  application: ''
 });
 
   const [activeTab, setActiveTab] = useState<'PENDING' | 'CONFIRM' | 'DECLINE'>('PENDING');
@@ -117,6 +118,9 @@ const RFQTable: React.FC = () => {
       const matchesTargetPriceMax =
         filters.target_price_max === '' ||
         (rfq.target_price_eur && rfq.target_price_eur <= parseInt(filters.target_price_max || '999999999'));
+      const matchesApplication =
+      filters.application === '' || rfq.application?.toLowerCase().includes(filters.application.toLowerCase());
+
 
       return (
         matchesSearch &&
@@ -128,7 +132,8 @@ const RFQTable: React.FC = () => {
         matchesAnnualVolumeMax &&
         matchesTargetPriceMin &&
         matchesTargetPriceMax &&
-        matchesRequester
+        matchesRequester &&
+        matchesApplication
       );
     });
   };
@@ -305,6 +310,20 @@ const RFQTable: React.FC = () => {
       />
     </div>
   </div>
+
+{/* Application */}
+<div className="filter-group">
+  <label>Application</label>
+  <input
+    type="text"
+    value={filters.application}
+    onChange={e => handleFilterChange('application', e.target.value)}
+    placeholder="Enter application"
+    className="filter-input"
+  />
+</div>
+
+     
 </div>
 
       </div>
