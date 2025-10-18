@@ -49,4 +49,5 @@ export interface RFQ {
   contact_created_at?: string; // Optional for pending RFQs
   created_by_email?: string; // Requester email
   validated_by_email?: string; // Validator email
+  to_total?: number;
 }
