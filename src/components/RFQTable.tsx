@@ -32,7 +32,7 @@ const RFQTable: React.FC = () => {
   to_total_min: '',
   to_total_max: '',
   requester: '',
-  application: ''
+  delivery_zone:''
 });
 
   const [activeTab, setActiveTab] = useState<'PENDING' | 'CONFIRM' | 'DECLINE'>('PENDING');
@@ -74,7 +74,8 @@ const RFQTable: React.FC = () => {
       target_price_max: '',
       to_total_min: '',
       to_total_max: '',
-      requester: ''
+      requester: '',
+      delivery_zone:''
     });
     setSearchTerm('');
   };
@@ -118,9 +119,8 @@ const RFQTable: React.FC = () => {
       const matchesTargetPriceMax =
         filters.target_price_max === '' ||
         (rfq.target_price_eur && rfq.target_price_eur <= parseInt(filters.target_price_max || '999999999'));
-      const matchesApplication =
-      filters.application === '' || rfq.application?.toLowerCase().includes(filters.application.toLowerCase());
-
+       const matchesDeliveryzone =
+        filters.requester === '' || rfq.delivery_zone?.toLowerCase().includes(filters.delivery_zone.toLowerCase());
 
       return (
         matchesSearch &&
@@ -133,7 +133,7 @@ const RFQTable: React.FC = () => {
         matchesTargetPriceMin &&
         matchesTargetPriceMax &&
         matchesRequester &&
-        matchesApplication
+        matchesDeliveryzone
       );
     });
   };
@@ -200,6 +200,17 @@ const RFQTable: React.FC = () => {
       value={filters.customer_name}
       onChange={e => handleFilterChange('customer_name', e.target.value)}
       placeholder="Enter customer name"
+      className="filter-input"
+    />
+  </div>
+    {/* Marker*/}
+  <div className="filter-group">
+    <label>Market</label>
+    <input
+      type="text"
+      value={filters.delivery_zone}
+      onChange={e => handleFilterChange('delivery_zone', e.target.value)}
+      placeholder="Enter Delivery Zone"
       className="filter-input"
     />
   </div>
@@ -310,20 +321,6 @@ const RFQTable: React.FC = () => {
       />
     </div>
   </div>
-
-{/* Application */}
-<div className="filter-group">
-  <label>Application</label>
-  <input
-    type="text"
-    value={filters.application}
-    onChange={e => handleFilterChange('application', e.target.value)}
-    placeholder="Enter application"
-    className="filter-input"
-  />
-</div>
-
-     
 </div>
 
       </div>
@@ -340,12 +337,12 @@ const RFQTable: React.FC = () => {
               <th>RFQ ID</th>
               <th>Requester</th>
               <th>Customer</th>
-              <th>Application</th>
               <th>Product Line</th>
               <th>Customer PN</th>
               <th>Annual Volume</th>
               <th>Target Price (€)</th>
               <th>TO Total (€)</th>
+             <th>Market</th>
               <th>Status</th>
             </tr>
           </thead>
@@ -360,13 +357,12 @@ const RFQTable: React.FC = () => {
                     <div className="customer-email">{rfq.contact_email || '-'}</div>
                   </div>
                 </td>
-                <td>{rfq.application || '-'}</td>
                 <td>{rfq.product_line}</td>
                 <td>{rfq.customer_pn}</td>
                 <td>{rfq.annual_volume?.toLocaleString()}</td>
                 <td>{rfq.target_price_eur ? Math.round(rfq.target_price_eur).toLocaleString() : '-'}€</td>
                 <td>{rfq.to_total ? Math.round(rfq.to_total).toLocaleString() : '-'}€</td>
-
+                <td>{rfq.delivery_zone}</td>
                 <td>
                   <span className={getStatusBadge(rfq.status)}>{rfq.status}</span>
                 </td>
