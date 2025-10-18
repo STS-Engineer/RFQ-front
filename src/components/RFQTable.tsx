@@ -302,7 +302,7 @@ const RFQTable: React.FC = () => {
 
   {/* TO Total */}
   <div className="filter-group">
-    <label>TO Total (€)</label>
+    <label>TO Total (k€)</label>
     <div className="range-inputs">
       <input
         type="number"
@@ -341,7 +341,7 @@ const RFQTable: React.FC = () => {
               <th>Customer PN</th>
               <th>Annual Volume</th>
               <th>Target Price (€)</th>
-              <th>TO Total (€)</th>
+              <th>TO Total (k€)</th>
              <th>Market</th>
               <th>Status</th>
             </tr>
