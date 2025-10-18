@@ -94,7 +94,8 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
         ['BUSINESS DETAILS', ''],
         ['Annual Volume', rfq.annual_volume],
         ['Target Price (EUR)', `€${rfq.target_price_eur || 0}`],
-        ['Development Costs', rfq.development_costs || 'N/A'], // Treat as string
+        ['TO Total (K€)', `€${rfq.target_price_eur || 0}`],
+        ['Development Costs', rfq.to_total || 0], // Treat as string
         ['Payment Terms', rfq.payment_terms],
         ['Delivery Conditions', rfq.delivery_conditions],
         ['Business Trigger', rfq.business_trigger],
@@ -142,6 +143,8 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
     }
   };
 
+
+  
   const formatDate = (dateString: string) => {
     if (!dateString) return 'N/A';
     try {
@@ -191,32 +194,34 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
         <div className="modal-body" id="rfq-modal-content">
           <div className="details-grid">
             {/* Participants */}
-            <div className="detail-section">
-              <h3 className="section-title">Participants</h3>
-              <div className="section-content participants-section">
-                <div className="participant-card">
-                  <UserPlus className="participant-icon requester-icon" size={24} />
-                  <div className="participant-info">
-                    <label>Requester</label>
-                    <span>
-                    {rfq.created_by_email
-                    ? rfq.created_by_email.split('@')[0]
-                    : 'N/A'}</span>
-                  </div>
-                </div>
-                <div className="participant-card">
-                  <UserCheck className="participant-icon validator-icon" size={24} />
-                  <div className="participant-info">
-                    <label>Validator</label>
-                    <span> 
-                    {rfq.validated_by_email
-                    ? rfq.validated_by_email.split('@')[0]
-                    : 'N/A'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
+  <div className="detail-section">
+  <h3 className="section-title">Participants</h3>
+  <div className="section-content participants-section">
+    <div className="participant-card">
+      <UserPlus className="participant-icon requester-icon" size={24} />
+      <div className="participant-info">
+        <label>Requester</label>
+        <span>
+          {rfq.created_by_email
+            ? rfq.created_by_email.split('@')[0]
+            : 'N/A'}
+        </span>
+      </div>
+    </div>
+    <div className="participant-card">
+      <UserCheck className="participant-icon validator-icon" size={24} />
+      <div className="participant-info">
+        <label>Validator</label>
+        <span>
+          {rfq.validated_by_email
+            ? rfq.validated_by_email.split('@')[0]
+            : 'N/A'}
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
 
             {/* Customer Info */}
             <div className="detail-section">
@@ -268,14 +273,21 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
             <div className="detail-section">
               <h3 className="section-title">Business Details</h3>
               <div className="section-content">
-                <div className="detail-item">
-                  <label>Annual Volume</label>
-                  <span>{(rfq.annual_volume || 0).toLocaleString()}</span>
-                </div>
-                <div className="detail-item">
-                  <label>Target Price</label>
-                  <span>€{(rfq.target_price_eur || 0).toLocaleString()}</span>
-                </div>
+               <div className="detail-item">
+  <label>Annual Volume</label>
+  <span>{Math.round(rfq.annual_volume || 0).toLocaleString()}</span>
+</div>
+
+<div className="detail-item">
+  <label>Target Price</label>
+  <span>{Math.round(rfq.target_price_eur || 0).toLocaleString()} €</span>
+</div>
+
+<div className="detail-item">
+  <label>To total</label>
+  <span>{Math.round(rfq.to_total || 0).toLocaleString()} k€</span>
+</div>
+
                 <div className="detail-item">
                   <label>Development Costs</label>
                   <span>{getSafeValue(rfq.development_costs)}</span>
