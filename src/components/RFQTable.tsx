@@ -321,6 +321,7 @@ const RFQTable: React.FC = () => {
               <th>RFQ ID</th>
               <th>Requester</th>
               <th>Customer</th>
+              <th>Application</th>
               <th>Product Line</th>
               <th>Customer PN</th>
               <th>Annual Volume</th>
@@ -340,6 +341,7 @@ const RFQTable: React.FC = () => {
                     <div className="customer-email">{rfq.contact_email || '-'}</div>
                   </div>
                 </td>
+                <td>{rfq.application || '-'}</td>
                 <td>{rfq.product_line}</td>
                 <td>{rfq.customer_pn}</td>
                 <td>{rfq.annual_volume?.toLocaleString()}</td>
