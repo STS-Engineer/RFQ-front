@@ -198,14 +198,21 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
                   <UserPlus className="participant-icon requester-icon" size={24} />
                   <div className="participant-info">
                     <label>Requester</label>
-                    <span>{getSafeValue(rfq.created_by_email)}</span>
+                    <span>
+                    {rfq.created_by_email
+                    ? rfq.created_by_email.split('@')[0]
+                    : 'N/A'}</span>
                   </div>
                 </div>
                 <div className="participant-card">
                   <UserCheck className="participant-icon validator-icon" size={24} />
                   <div className="participant-info">
                     <label>Validator</label>
-                    <span>{getSafeValue(rfq.validated_by_email)}</span>
+                    <span> 
+                    {rfq.validated_by_email
+                    ? rfq.validated_by_email.split('@')[0]
+                    : 'N/A'}
+                    </span>
                   </div>
                 </div>
               </div>
