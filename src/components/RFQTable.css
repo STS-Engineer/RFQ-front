@@ -671,6 +671,24 @@
   animation: pulse 2s infinite;
 }
 
+.range-inputs {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* space between inputs and the "to" span */
+}
+
+.range-inputs input {
+  width: 100px; /* optional: set a fixed width for inputs */
+}
+.range-inputs input:last-child {
+  width: 110px; /* slightly wider Max input */
+}
+
+.range-inputs span {
+  margin: 0 8px; /* small margin around the "to" text */
+}
+
+
 /* Custom select styling */
 .filter-select {
   appearance: none;
@@ -680,6 +698,20 @@
   background-size: 16px;
   padding-right: 48px;
 }
+
+.clickable-row {
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.selected-row {
+  background-color: #fafafa; /* very light gray */
+}
+
+.clickable-row:hover {
+  background-color: #fefefe; /* almost white on hover */
+}
+
 
 /* Responsive design */
 @media (max-width: 1200px) {
