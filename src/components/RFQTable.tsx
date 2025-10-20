@@ -32,7 +32,8 @@ const RFQTable: React.FC = () => {
   to_total_min: '',
   to_total_max: '',
   requester: '',
-  delivery_zone:''
+  delivery_zone:'',
+  application: '',
 });
 
   const [activeTab, setActiveTab] = useState<'PENDING' | 'CONFIRM' | 'DECLINE'>('PENDING');
@@ -75,7 +76,8 @@ const RFQTable: React.FC = () => {
       to_total_min: '',
       to_total_max: '',
       requester: '',
-      delivery_zone:''
+      delivery_zone:'',
+      application:''
     });
     setSearchTerm('');
   };
@@ -122,6 +124,8 @@ const RFQTable: React.FC = () => {
        const matchesDeliveryzone =
         filters.requester === '' || rfq.delivery_zone?.toLowerCase().includes(filters.delivery_zone.toLowerCase());
 
+       const matchesApllication =
+        filters.application === '' || rfq.application.toLowerCase().includes(filters.application.toLowerCase());
       return (
         matchesSearch &&
         matchesRfqId &&
@@ -133,7 +137,8 @@ const RFQTable: React.FC = () => {
         matchesTargetPriceMin &&
         matchesTargetPriceMax &&
         matchesRequester &&
-        matchesDeliveryzone
+        matchesDeliveryzone &&
+        matchesApllication
       );
     });
   };
@@ -339,6 +344,7 @@ const RFQTable: React.FC = () => {
               <th>Customer</th>
               <th>Product Line</th>
               <th>Customer PN</th>
+               <th>Application</th>
               <th>Annual Volume</th>
               <th>Target Price (€)</th>
               <th>TO Total (k€)</th>
@@ -366,6 +372,7 @@ const RFQTable: React.FC = () => {
                 </td>
                 <td>{rfq.product_line}</td>
                 <td>{rfq.customer_pn}</td>
+                 <td>{rfq.application}</td>
                 <td>{rfq.annual_volume?.toLocaleString()}</td>
                 <td>{rfq.target_price_eur ? Math.round(rfq.target_price_eur).toLocaleString() : '-'}€</td>
                 <td>{rfq.to_total ? Math.round(rfq.to_total).toLocaleString() : '-'}€</td>
