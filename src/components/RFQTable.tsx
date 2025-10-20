@@ -261,6 +261,18 @@ const RFQTable: React.FC = () => {
     />
   </div>
 
+  {/* Application */}
+  <div className="filter-group">
+    <label>Application</label>
+    <input
+      type="text"
+      value={filters.application}
+      onChange={e => handleFilterChange('application', e.target.value)}
+      placeholder="Enter Application"
+      className="filter-input"
+    />
+  </div>
+     
   {/* Annual Volume */}
   <div className="filter-group">
     <label>Annual Volume</label>
