@@ -351,12 +351,12 @@ const RFQTable: React.FC = () => {
               <tr key={rfq.rfq_id} onClick={() => handleRowClick(rfq)}   className={`clickable-row ${selectedRfq?.rfq_id === rfq.rfq_id ? 'selected-row' : ''}`}>
                 <td>{rfq.rfq_id}</td>
                <td>
-              {rfq.created_by_email
-                 ? rfq.created_by_email
-                 .split('@')[0]              // take part before '@'
-                  .replace(/\./g, ' ')        // replace all '.' with spaces
-                 .replace(/\b\w/g, c => c.toUpperCase()) // capitalize each word
-               : '-'}
+                {rfq.created_by_email
+                   ? (() => {
+                  const name = rfq.created_by_email.split('@')[0].replace(/\./g, ' ');
+                  return name.charAt(0).toUpperCase() + name.slice(1);
+                   })()
+                 : '-'}
               </td>
                 <td>
                   <div className="customer-info">
