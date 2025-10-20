@@ -350,7 +350,14 @@ const RFQTable: React.FC = () => {
             {filterRfqs(groupedRfqs[activeTab]).map(rfq => (
               <tr key={rfq.rfq_id} onClick={() => handleRowClick(rfq)}   className={`clickable-row ${selectedRfq?.rfq_id === rfq.rfq_id ? 'selected-row' : ''}`}>
                 <td>{rfq.rfq_id}</td>
-                <td>{rfq.created_by_email ? rfq.created_by_email.split('@')[0] : '-'}</td>
+               <td>
+              {rfq.created_by_email
+                 ? rfq.created_by_email
+                 .split('@')[0]              // take part before '@'
+                  .replace(/\./g, ' ')        // replace all '.' with spaces
+                 .replace(/\b\w/g, c => c.toUpperCase()) // capitalize each word
+               : '-'}
+              </td>
                 <td>
                   <div className="customer-info">
                     <div>{rfq.customer_name}</div>
