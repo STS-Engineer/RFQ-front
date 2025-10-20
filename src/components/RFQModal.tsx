@@ -202,9 +202,13 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
       <div className="participant-info">
         <label>Requester</label>
         <span>
-          {rfq.created_by_email
-            ? rfq.created_by_email.split('@')[0]
-            : 'N/A'}
+       {rfq.created_by_email
+       ? (() => {
+        const name = rfq.created_by_email.split('@')[0].replace(/\./g, ' ');
+        return name.charAt(0).toUpperCase() + name.slice(1);
+        })()
+      : '-'}
+
         </span>
       </div>
     </div>
@@ -213,9 +217,12 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
       <div className="participant-info">
         <label>Validator</label>
         <span>
-          {rfq.validated_by_email
-            ? rfq.validated_by_email.split('@')[0]
-            : 'N/A'}
+       {rfq.validated_by_email
+         ? (() => {
+        const name = rfq.validated_by_email.split('@')[0].replace(/\./g, ' ');
+        return name.charAt(0).toUpperCase() + name.slice(1);
+         })()
+        : '-'}
         </span>
       </div>
     </div>
