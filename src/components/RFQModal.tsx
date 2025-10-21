@@ -6,7 +6,7 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
-import { UserCheck, UserPlus } from 'lucide-react';
+import { UserCheck, UserPlus, Sparkles } from 'lucide-react';
 import logo from '../assets/logo-avocarbon-1-removebg-preview.png';
 
 interface RFQModalProps {
@@ -31,6 +31,10 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
     if (e.target === e.currentTarget) {
       onClose();
     }
+  };
+
+ const openAIAssistant = () => {
+    window.open('https://chatgpt.com/g/g-68d8e2cc2cc08191bafeefd60b31cc62-rfq-integration', '_blank', 'noopener,noreferrer');
   };
 
   const exportToPDF = async () => {
@@ -188,7 +192,17 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
               </span>
             </div>
           </div>
-          <button className="close-btn" onClick={onClose}>×</button>
+          <div className="modal-header-actions">
+            <button 
+              className="ai-assistant-btn"
+              onClick={openAIAssistant}
+              title="Open AI Assistant for RFQ Analysis"
+            >
+              <Sparkles size={20} />
+              <span>AI Assistant</span>
+            </button>
+            <button className="close-btn" onClick={onClose}>×</button>
+          </div>
         </div>
 
         <div className="modal-body" id="rfq-modal-content">
