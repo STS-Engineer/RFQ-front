@@ -41,54 +41,149 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  padding: 24px;
+  padding: 24px 32px;
   border-bottom: 1px solid #e2e8f0;
-  background: #f8fafc;
-  border-radius: 16px 16px 0 0;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+.modal-header-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  flex: 1;
+}
+
+.modal-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px 8px 8px;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.modal-logo .logo-img {
+  width: 90px;
+  height: 50px;
+  filter: none;
+  object-fit: contain;
+}
+
+.modal-logo .logo-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.modal-logo .logo-main {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1e293b;
+  letter-spacing: -0.5px;
+}
+
+.modal-logo .logo-subtitle {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .modal-title {
   display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
 }
 
 .modal-title h2 {
   margin: 0;
   color: #1e293b;
-  font-size: 24px;
+  font-size: 1.5rem;
   font-weight: 700;
 }
 
 .status-badge-large {
-  padding: 8px 16px;
+  padding: 6px 16px;
   border-radius: 20px;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  align-self: flex-start;
+}
+
+/* AI Assistant Button Styles - MOVED OUTSIDE MEDIA QUERY */
+.modal-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ai-assistant-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
   font-size: 14px;
   font-weight: 600;
-  color: white;
-  text-transform: capitalize;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.ai-assistant-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+.ai-assistant-btn:active {
+  transform: translateY(0);
+}
+
+.ai-assistant-btn .lucide-sparkles {
+  animation: subtle-pulse 2s infinite;
+}
+
+@keyframes subtle-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
 }
 
 .close-btn {
   background: none;
   border: none;
-  font-size: 28px;
+  font-size: 2rem;
   color: #64748b;
   cursor: pointer;
-  padding: 0;
-  width: 32px;
-  height: 32px;
+  padding: 4px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
-  transition: all 0.2s;
 }
 
 .close-btn:hover {
-  background: #f1f5f9;
-  color: #475569;
+  background: rgba(0, 0, 0, 0.05);
+  color: #1e293b;
 }
 
 .modal-body {
@@ -180,6 +275,55 @@
   font-weight: 500;
 }
 
+.participants-section {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+
+.participant-card {
+  display: flex;
+  align-items: center;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px 16px;
+  flex: 1 1 45%;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease-in-out;
+}
+
+.participant-card:hover {
+  background: #f3f4f6;
+  transform: translateY(-2px);
+}
+
+.participant-icon {
+  margin-right: 12px;
+  color: #4b5563;
+}
+
+.requester-icon {
+  color: #3b82f6;
+}
+
+.validator-icon {
+  color: #10b981;
+}
+
+.participant-info label {
+  font-size: 0.85rem;
+  color: #6b7280;
+  display: block;
+}
+
+.participant-info span {
+  font-weight: 500;
+  color: #111827;
+  font-size: 0.95rem;
+}
+
 .modal-footer {
   display: flex;
   justify-content: flex-end;
@@ -221,87 +365,6 @@
   transform: translateY(-1px);
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .details-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .modal-content {
-    width: 95%;
-    margin: 10px;
-  }
-  
-  .modal-header {
-    padding: 16px;
-  }
-  
-  .modal-body {
-    padding: 16px;
-  }
-  
-  .detail-item {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 4px;
-  }
-  
-  .detail-item label {
-    min-width: auto;
-  }
-}
-
-/* Add to RFQModal.css */
-
-/* Export Actions in Header */
-.modal-export-actions {
-  display: flex;
-  gap: 12px;
-  padding: 0 24px 16px 24px;
-  border-bottom: 1px solid #e2e8f0;
-  margin-bottom: 16px;
-}
-
-.export-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 500;
-  font-size: 14px;
-  transition: all 0.3s ease;
-  text-decoration: none;
-}
-
-.pdf-export {
-  background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
-  color: #c62828;
-  border: 1px solid #ef9a9a;
-}
-
-.excel-export {
-  background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
-  color: #2e7d32;
-  border: 1px solid #a5d6a7;
-}
-
-.export-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.export-btn:active {
-  transform: translateY(0);
-}
-
-.export-icon {
-  font-size: 16px;
-}
-
-/* Footer Export Buttons */
 .footer-export-buttons {
   display: flex;
   gap: 12px;
@@ -342,23 +405,73 @@
   transform: translateY(0);
 }
 
-/* Modal Body Styling for PDF Export */
-#rfq-modal-content {
-  background: white;
-}
-
-/* Responsive Design for Export Buttons */
+/* Responsive Design */
 @media (max-width: 768px) {
-  .modal-export-actions {
+  .details-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .modal-content {
+    width: 95%;
+    margin: 10px;
+  }
+  
+  .modal-header {
+    padding: 16px;
     flex-direction: column;
+    gap: 16px;
+  }
+
+  .modal-header-left {
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+  }
+
+  .modal-logo {
+    align-self: flex-start;
+  }
+
+  .modal-title {
+    width: 100%;
+  }
+
+  .modal-body {
+    padding: 16px;
+  }
+  
+  .detail-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+  }
+  
+  .detail-item label {
+    min-width: auto;
+  }
+
+  .close-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 36px;
+    height: 36px;
+  }
+
+  /* Mobile styles for AI Assistant button */
+  .modal-header-actions {
     gap: 8px;
   }
   
-  .export-btn {
-    justify-content: center;
-    padding: 12px;
+  .ai-assistant-btn {
+    padding: 8px 12px;
+    font-size: 12px;
   }
   
+  .ai-assistant-btn span {
+    display: none; /* Hide text on mobile, show only icon */
+  }
+
   .footer-export-buttons {
     flex-direction: column;
     width: 100%;
@@ -400,219 +513,7 @@
   outline: none;
 }
 
-/* Success state for exports */
-.export-success {
-  background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%) !important;
-  color: white !important;
-}
-
-/* Loading state for exports */
-.export-loading {
-  position: relative;
-  color: transparent !important;
-}
-
-.export-loading::after {
-  content: '';
-  position: absolute;
-  width: 16px;
-  height: 16px;
-  border: 2px solid transparent;
-  border-top: 2px solid currentColor;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-/* Add these styles to your RFQModal.css */
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 24px 32px;
-  border-bottom: 1px solid #e2e8f0;
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-}
-
-.modal-header-left {
-  display: flex;
-  align-items: flex-start;
-  gap: 20px;
-  flex: 1;
-}
-
-.modal-logo {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 16px 8px 8px;
-  background: white;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-.modal-logo .logo-img {
-  width: 90px;
-  height: 50px;
-  /* Remove the filter that makes it black */
-  filter: none;
-  /* Ensure the logo maintains its original colors */
-  object-fit: contain;
-}
-
-
-.modal-logo .logo-text {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.2;
-}
-
-.modal-logo .logo-main {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #1e293b;
-  letter-spacing: -0.5px;
-}
-
-
-.modal-logo .logo-subtitle {
-  font-size: 0.65rem;
-  font-weight: 600;
-  color: #64748b;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.modal-title {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  flex: 1;
-}
-
-.modal-title h2 {
-  margin: 0;
-  color: #1e293b;
-  font-size: 1.5rem;
-  font-weight: 700;
-}
-
-.status-badge-large {
-  padding: 6px 16px;
-  border-radius: 20px;
-  color: white;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  align-self: flex-start;
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 2rem;
-  color: #64748b;
-  cursor: pointer;
-  padding: 4px;
-  border-radius: 6px;
-  transition: all 0.3s ease;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.close-btn:hover {
-  background: rgba(0, 0, 0, 0.05);
-  color: #1e293b;
-}
-
-.participants-section {
-  display: flex;
-  gap: 2rem;
-  flex-wrap: wrap;
-  margin-top: 0.5rem;
-}
-
-.participant-card {
-  display: flex;
-  align-items: center;
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 12px 16px;
-  flex: 1 1 45%;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
-  transition: all 0.2s ease-in-out;
-}
-
-.participant-card:hover {
-  background: #f3f4f6;
-  transform: translateY(-2px);
-}
-
-.participant-icon {
-  margin-right: 12px;
-  color: #4b5563;
-}
-
-.requester-icon {
-  color: #3b82f6; /* blue tone for requester */
-}
-
-.validator-icon {
-  color: #10b981; /* green tone for validator */
-}
-
-.participant-info label {
-  font-size: 0.85rem;
-  color: #6b7280;
-  display: block;
-}
-
-.participant-info span {
-  font-weight: 500;
-  color: #111827;
-  font-size: 0.95rem;
-}
-
-
-/* Responsive design for modal header */
-@media (max-width: 768px) {
-  .modal-header {
-    padding: 20px;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .modal-header-left {
-    flex-direction: column;
-    gap: 16px;
-    width: 100%;
-  }
-
-  .modal-logo {
-    align-self: flex-start;
-  }
-
-  .modal-title {
-    width: 100%;
-  }
-
-  .close-btn {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    width: 36px;
-    height: 36px;
-  }
-}
-
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
-
