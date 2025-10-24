@@ -37,6 +37,27 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
     }
   };
 
+    // ------------------- Document Handling -------------------
+  const handleDocumentClick = (filePath: string) => {
+    const fileUrl = getFileUrl(filePath);
+    const ext = fileUrl.split('.').pop()?.toLowerCase();
+
+    if (!ext) return alert('Unknown file type.');
+
+    if (ext === 'pdf') {
+      setPdfPreviewUrl(fileUrl);
+      setZoomLevel(1);
+    } else if (['xlsx', 'xls'].includes(ext)) {
+      const link = document.createElement('a');
+      link.href = fileUrl;
+      link.download = fileUrl.split('/').pop() || 'file.xlsx';
+      link.target = '_blank';
+      link.click();
+    } else {
+      alert('Unsupported file format.');
+    }
+  };
+
  const openAIAssistant = () => {
     window.open('https://chatgpt.com/g/g-68d8e2cc2cc08191bafeefd60b31cc62-rfq-integration', '_blank', 'noopener,noreferrer');
   };
@@ -444,7 +465,7 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
         <label>RFQ File</label>
         <button
           className="document-btn"
-          onClick={() => setPdfPreviewUrl(rfq.rfq_file_path!)}
+          onClick={() => handleDocumentClick(rfq.rfq_file_path!)}
         >
           📄 {rfq.rfq_file_path.split('/').pop()}
         </button>
