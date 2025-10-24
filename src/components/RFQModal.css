@@ -405,6 +405,117 @@
   transform: translateY(0);
 }
 
+/* --- Document button --- */
+.document-btn {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.document-btn:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #5b50eb, #8b5cf6);
+}
+
+/* --- Overlay --- */
+.pdf-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 15, 15, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  backdrop-filter: blur(6px);
+}
+
+/* --- Modal Box --- */
+.pdf-modal {
+  background: #fff;
+  width: 85%;
+  max-width: 1000px;
+  height: 85vh;
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+  animation: zoomIn 0.3s ease;
+}
+
+/* --- Header --- */
+.pdf-modal-header {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: #fff;
+  padding: 14px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+/* --- Zoom buttons --- */
+.pdf-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.pdf-controls button {
+  background: rgba(255,255,255,0.15);
+  border: none;
+  color: white;
+  font-size: 18px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.pdf-controls button:hover {
+  background: rgba(255,255,255,0.3);
+}
+
+/* --- PDF Viewer --- */
+.pdf-viewer {
+  flex: 1;
+  background: #f5f5f5;
+  overflow: hidden;
+}
+
+.pdf-viewer iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  transition: transform 0.2s ease;
+}
+
+/* --- Animation --- */
+@keyframes zoomIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .details-grid {
