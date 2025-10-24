@@ -475,13 +475,19 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
             </button>
           </div>
         </div>
-        <div className="pdf-viewer">
-          <iframe
-            src={pdfPreviewUrl}
-            title="PDF Preview"
-            style={{ transform: `scale(${zoomLevel})`, transformOrigin: 'top center' }}
-          />
-        </div>
+      <div className="pdf-viewer">
+      <embed
+      src={pdfPreviewUrl}
+      type="application/pdf"
+      style={{
+      width: '100%',
+      height: '100%',
+      transform: `scale(${zoomLevel})`,
+      transformOrigin: 'top center',
+      pointerEvents: 'none', // disables selection/interactions
+       }}
+       />
+      </div>
       </div>
     </div>
   )}
