@@ -16,6 +16,10 @@ interface RFQModalProps {
 }
 
 const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
+
+  const [pdfPreviewUrl, setPdfPreviewUrl] = useState<string | null>(null);
+  const [zoomLevel, setZoomLevel] = useState(1);
+  
   useEffect(() => {
     if (isOpen) {
       console.log('RFQ data in modal:', rfq);
