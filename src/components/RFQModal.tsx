@@ -1,5 +1,5 @@
 // components/RFQModal.tsx
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { RFQ } from '../types/rfq';
 import './RFQModal.css';
 import jsPDF from 'jspdf';
