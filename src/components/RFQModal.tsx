@@ -36,6 +36,11 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
       onClose();
     }
   };
+  const getFileUrl = (filePath: string) => {
+    if (!filePath) return '';
+    if (filePath.startsWith('http')) return filePath;
+    return `https://rfq-back.azurewebsites.net/${filePath}`;
+  };
 
     // ------------------- Document Handling -------------------
   const handleDocumentClick = (filePath: string) => {
