@@ -431,6 +431,57 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
                 </div>
               </div>
             </div>
+                        {/* Documents */}
+        <div className="detail-section">
+          <h3 className="section-title">Documents</h3>
+        <div className="section-content">
+           {rfq.rfq_file_path ? (
+        <div className="detail-item full-width">
+        <label>RFQ File</label>
+        <button
+          className="document-btn"
+          onClick={() => setPdfPreviewUrl(rfq.rfq_file_path!)}
+        >
+          📄 {rfq.rfq_file_path.split('/').pop()}
+        </button>
+      </div>
+    ) : (
+      <span>No document available</span>
+    )}
+  </div>
+
+  {/* PDF Preview Modal */}
+  {pdfPreviewUrl && (
+    <div
+      className="pdf-modal-overlay"
+      onClick={() => setPdfPreviewUrl(null)}
+    >
+      <div className="pdf-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="pdf-modal-header">
+          <h4>📑 {pdfPreviewUrl.split('/').pop()}</h4>
+          <div className="pdf-controls">
+            <button onClick={() => setZoomLevel((z) => Math.min(z + 0.2, 2))}>
+              ➕
+            </button>
+            <button onClick={() => setZoomLevel((z) => Math.max(z - 0.2, 0.6))}>
+              ➖
+            </button>
+            <button className="close-btn" onClick={() => setPdfPreviewUrl(null)}>
+              ✖
+            </button>
+          </div>
+        </div>
+        <div className="pdf-viewer">
+          <iframe
+            src={pdfPreviewUrl}
+            title="PDF Preview"
+            style={{ transform: `scale(${zoomLevel})`, transformOrigin: 'top center' }}
+          />
+        </div>
+      </div>
+    </div>
+  )}
+          </div>
           </div>
         </div>
 
