@@ -18,8 +18,7 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
   const [pdfPreviewUrl, setPdfPreviewUrl] = useState<string | null>(null);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [iframeKey, setIframeKey] = useState<number>(0); // ⬅️ new key to force re-render
-  const [isLoadingPreview, setIsLoadingPreview] = useState(false);
-  const [previewError, setPreviewError] = useState<string | null>(null);
+
   useEffect(() => {
     if (isOpen) console.log('RFQ data loaded in modal:', rfq);
   }, [isOpen, rfq]);
@@ -43,7 +42,7 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
     return v;
   };
 
-  const getSafeValue = (val: any, def: string = 'N/A') => (val || val === 0 ? val : def);
+ 
   const formatNumber = (val: number | undefined) => (val ? Math.round(val).toLocaleString() : '0');
 
   const getFileUrl = (filePath: string) => {
@@ -90,11 +89,6 @@ const handleDocumentClick = (filePath: string) => {
 
   }, 200); // Small delay ensures the modal refreshes before reload
 };
-
-
-  const handleZoom = (delta: number) => {
-    setZoomLevel((prev) => Math.min(Math.max(prev + delta, 0.5), 3));
-  };
 
   // ------------------- Export: PDF -------------------
   const exportToPDF = async () => {
