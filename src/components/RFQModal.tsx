@@ -359,7 +359,8 @@ const handleDocumentClick = (filePath: string) => {
               <div className="section-content">
                 <div className="detail-item full-width"><label>Product Feasibility Note</label><span>{rfq.product_feasibility_note}</span></div>
                 <div className="detail-item full-width"><label>Strategic Note</label><span>{rfq.strategic_note}</span></div>
-                <div className="detail-item full-width"><label>Validator Comments</label><span>{rfq.validator_comments}</span></div>
+                <div className="detail-item full-width"><label>Validator Comment</label><span>{rfq.validator_comments}</span></div>
+                <div className="detail-item full-width"><label>Requester Comment</label><span>{rfq.requester_comment}</span></div>
                 <div className="detail-item full-width"><label>Final Recommendation</label><span>{rfq.final_recommendation}</span></div>
               </div>
             </div>
