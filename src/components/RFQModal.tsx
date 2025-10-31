@@ -91,37 +91,58 @@ const handleDocumentClick = (filePath: string) => {
 };
 
   // ------------------- Export: PDF -------------------
-  const exportToPDF = async () => {
-    try {
-      const element = document.getElementById('rfq-modal-content');
-      if (!element) return;
+ const exportToPDF = async () => {
+   try {
+    const element = document.getElementById('rfq-modal-content');
+    if (!element) return;
 
-      const canvas = await html2canvas(element, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
+    // ✅ Clone the content (this ensures scroll-hidden content is captured)
+    const clone = element.cloneNode(true) as HTMLElement;
+    clone.style.width = element.scrollWidth + 'px';
+    clone.style.height = element.scrollHeight + 'px';
+    clone.style.position = 'absolute';
+    clone.style.top = '-9999px';
+    clone.style.left = '0';
+    clone.style.background = '#ffffff';
+    clone.style.overflow = 'visible';
+    document.body.appendChild(clone);
 
-      const imgWidth = 210;
-      const pageHeight = 295;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      let heightLeft = imgHeight;
-      let position = 0;
+    // 🖼️ Capture full element
+    const canvas = await html2canvas(clone, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#ffffff',
+      scrollY: -window.scrollY, // fix offset issues
+    });
 
+    document.body.removeChild(clone); // cleanup
+
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF('p', 'mm', 'a4');
+
+    const imgWidth = 210; // A4 width in mm
+    const pageHeight = 295;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    let heightLeft = imgHeight;
+    let position = 0;
+
+    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+
+    while (heightLeft > 0) {
+      position = heightLeft - imgHeight;
+      pdf.addPage();
       pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
       heightLeft -= pageHeight;
-
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-      }
-
-      pdf.save(`RFQ_${rfq.rfq_id}_${rfq.customer_name}.pdf`);
-    } catch (err) {
-      console.error('Error generating PDF:', err);
-      alert('Failed to generate PDF. Please try again.');
     }
-  };
+
+    pdf.save(`RFQ_${rfq.rfq_id}_${rfq.customer_name}.pdf`);
+  } catch (err) {
+    console.error('Error generating PDF:', err);
+    alert('Failed to generate PDF. Please try again.');
+  }
+};
+
 
   // ------------------- Export: Excel -------------------
   const exportToExcel = () => {
