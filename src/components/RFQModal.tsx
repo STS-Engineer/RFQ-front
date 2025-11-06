@@ -308,7 +308,7 @@ const handleDocumentClick = (filePath: string) => {
               <h3 className="section-title">Business Details</h3>
               <div className="section-content">
                 <div className="detail-item"><label>Annual Volume</label><span>{formatNumber(rfq.annual_volume)}</span></div>
-                <div className="detail-item"><label>Target Price</label><span>{formatNumber(rfq.target_price_eur)} €</span></div>
+                <div className="detail-item"><label>Target Price</label><span>{rfq.target_price_eur} €</span></div>
                 <div className="detail-item"><label>TO Total</label><span>{formatNumber(rfq.to_total)} k€</span></div>
                 <div className="detail-item"><label>Development Costs</label><span>{rfq.development_costs}</span></div>
                 <div className="detail-item"><label>Payment Terms</label><span>{rfq.payment_terms}</span></div>
