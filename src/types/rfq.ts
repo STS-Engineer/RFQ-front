@@ -51,4 +51,5 @@ export interface RFQ {
   validated_by_email?: string; // Validator email
   to_total?: number;
   requester_comment: string;
+  costingfile?: string; 
 }
