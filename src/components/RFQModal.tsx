@@ -59,34 +59,6 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
     if (e.target === e.currentTarget) onClose();
   };
 
-  const handleCostingUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-  const file = e.target.files?.[0];
-  if (!file) return;
-
-  const formData = new FormData();
-  formData.append("file", file);
-
-  try {
-    setUploading(true);
-    setUploadMessage(null);
-
-    const response = await axios.post(
-      `https://rfq-back.azurewebsites.net/ajouter/rfq/${rfq.rfq_id}/upload`,
-      formData,
-      {
-        headers: { "Content-Type": "multipart/form-data" },
-      }
-    );
-
-    console.log("Upload success:", response.data);
-    setUploadMessage("✅ Costing file uploaded successfully!");
-  } catch (err: any) {
-    console.error("Upload failed:", err);
-    setUploadMessage("❌ Failed to upload costing file. Try again.");
-  } finally {
-    setUploading(false);
-  }
-};
 
   // ------------------- Document Handling -------------------
 const handleDocumentClick = (filePath: string) => {
