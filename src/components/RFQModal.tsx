@@ -5,6 +5,7 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
+import axios from "axios";
 import { UserCheck, UserPlus, Sparkles } from 'lucide-react';
 import logo from '../assets/logo-avocarbon-1-removebg-preview.png';
 
@@ -18,6 +19,8 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
   const [pdfPreviewUrl, setPdfPreviewUrl] = useState<string | null>(null);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [iframeKey, setIframeKey] = useState<number>(0); // ⬅️ new key to force re-render
+  const [uploading, setUploading] = useState(false);
+  const [uploadMessage, setUploadMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen) console.log('RFQ data loaded in modal:', rfq);
@@ -55,6 +58,35 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
   const handleOverlayClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) onClose();
   };
+
+  const handleCostingUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    setUploading(true);
+    setUploadMessage(null);
+
+    const response = await axios.post(
+      `https://rfq-back.azurewebsites.net/ajouter/rfq/${rfq.rfq_id}/upload`,
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      }
+    );
+
+    console.log("Upload success:", response.data);
+    setUploadMessage("✅ Costing file uploaded successfully!");
+  } catch (err: any) {
+    console.error("Upload failed:", err);
+    setUploadMessage("❌ Failed to upload costing file. Try again.");
+  } finally {
+    setUploading(false);
+  }
+};
 
   // ------------------- Document Handling -------------------
 const handleDocumentClick = (filePath: string) => {
@@ -425,6 +457,128 @@ const handleDocumentClick = (filePath: string) => {
     </div>
   )}
           </div>
+    
+       {/* Costing Section */}
+
+{/* Costing Section */}
+<div className="detail-section">
+  <h3 className="section-title">Costing</h3>
+  <div className="section-content">
+
+    {/* Upload Costing File */}
+    <div className="detail-item full-width">
+      <label>Upload Costing File</label>
+      <input
+        type="file"
+        accept=".pdf,.xlsx,.xls"
+        id={`costingFile-${rfq.rfq_id}`}
+        disabled={uploading}
+        onChange={async (e) => {
+          const file = e.target.files?.[0];
+          if (!file) return;
+
+          const formData = new FormData();
+          formData.append("file", file);
+
+          setUploading(true);
+          setUploadMessage("");
+
+          try {
+            const response = await axios.post(
+              `https://rfq-back.azurewebsites.net/ajouter/rfq/${rfq.rfq_id}/upload`,
+              formData,
+              { headers: { "Content-Type": "multipart/form-data" } }
+            );
+
+            setUploadMessage("✅ Costing file uploaded successfully!");
+            console.log("File uploaded:", response.data);
+
+            // ✅ Update costing file path dynamically
+            rfq.costingfile = response.data.filePath || file.name;
+          } catch (err: any) {
+            console.error("❌ Error uploading costing file:", err);
+            setUploadMessage("❌ Failed to upload costing file.");
+          } finally {
+            setUploading(false);
+          }
+        }}
+      />
+
+      {uploading && <p style={{ color: "orange" }}>Uploading...</p>}
+      {uploadMessage && (
+        <p
+          style={{
+            color: uploadMessage.startsWith("✅") ? "green" : "red",
+          }}
+        >
+          {uploadMessage}
+        </p>
+      )}
+    </div>
+
+    {/* Display Existing Costing File Path */}
+    {rfq.costingfile && (
+      <div className="detail-item full-width">
+        <label>Current Costing File:</label>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+       
+          <button
+            className="view-btn"
+            onClick={() => {
+              // Adjust base path depending on where your uploads are served
+              const fileUrl = `http://localhost:4000${rfq.costingfile}`;
+              window.open(fileUrl, "_blank");
+            }}
+          >
+            👁️ View File
+          </button>
+        </div>
+      </div>
+    )}
+
+    {/* Send Costing File to Requester */}
+    <div className="detail-item full-width">
+      <button
+        className="document-btn"
+        onClick={async () => {
+          try {
+            const costingFileInput = document.querySelector<HTMLInputElement>(
+              `#costingFile-${rfq.rfq_id}`
+            );
+
+            if (!costingFileInput || !costingFileInput.files?.[0]) {
+              alert("Please upload a costing file first!");
+              return;
+            }
+
+            const file = costingFileInput.files[0];
+            const formData = new FormData();
+            formData.append("file", file);
+
+            const response = await axios.post(
+              `https://rfq-back.azurewebsites.net/ajouter/rfq/send-costing-email/${rfq.rfq_id}`,
+              formData,
+              {
+                headers: { "Content-Type": "multipart/form-data" },
+              }
+            );
+
+            alert("✅ Costing file sent to requester successfully!");
+            console.log("Email sent:", response.data);
+          } catch (err: any) {
+            console.error("❌ Error sending costing email:", err);
+            alert("❌ Failed to send costing file. Please try again.");
+          }
+        }}
+      >
+        📤 Send Costing to Requester
+      </button>
+    </div>
+  </div>
+</div>
+
+
+
 
           </div>
         </div>
