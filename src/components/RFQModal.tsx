@@ -498,7 +498,7 @@ const handleDocumentClick = (filePath: string) => {
             className="view-btn"
             onClick={() => {
               // Adjust base path depending on where your uploads are served
-              const fileUrl = `http://localhost:4000${rfq.costingfile}`;
+              const fileUrl = `https://rfq-back.azurewebsites.net${rfq.costingfile}`;
               window.open(fileUrl, "_blank");
             }}
           >
