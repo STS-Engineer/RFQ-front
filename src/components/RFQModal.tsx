@@ -409,24 +409,39 @@ const handleDocumentClick = (filePath: string) => {
             </button>
           </div>
         </div>
-  <div className="pdf-viewer">
-<embed
-  key={iframeKey} // ⬅️ ensures it reloads every time you click
-  src={pdfPreviewUrl}
-  type="application/pdf"
+   <div className="pdf-viewer"   
   style={{
-    width: '100%',
-    height: '100%',
-    transform: `scale(${zoomLevel})`,
-    transformOrigin: 'top center',
-    pointerEvents: 'none',
-  }}
-/>
-
+    width: "100%",
+    height: "100%",
+    overflow: "auto",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "flex-start",
+    paddingTop: "20px",
+    backgroundColor: "#f5f5f5", // Optional: background color
+  }}>
+  <div style={{
+    width: "80%", // 🔥 Control width (80% of container)
+    maxWidth: "1030px", // 🔥 Maximum width
+    height: "80%",
+    boxShadow: "0 4px 6px rgba(0,0,0,0.1)", // Optional: add shadow
+  }}>
+    <embed
+      key={iframeKey}
+      src={`${pdfPreviewUrl}`} // 🔥 Smaller zoom (120% instead of 150%)
+      type="application/pdf"
+      style={{
+        width: '100%',
+        height: '800px', // 🔥 Fixed height (adjust as needed)
+        border: 'none',
+        transform: `scale(${zoomLevel})`,
+        transformOrigin: 'center top',
+      }}
+    />
+  </div>
 </div>
-
-      </div>
-    </div>
+ </div>
+ </div>
   )}
           </div>
     
