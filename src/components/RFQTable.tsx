@@ -362,6 +362,7 @@ const RFQTable: React.FC = () => {
               <th>TO Total (k€)</th>
              <th>Market</th>
               <th>Status</th>
+              {activeTab === 'CONFIRM' && <th>Project Status</th>}
             </tr>
           </thead>
           <tbody>
@@ -392,6 +393,11 @@ const RFQTable: React.FC = () => {
                 <td>
                   <span className={getStatusBadge(rfq.status)}>{rfq.status}</span>
                 </td>
+                 {activeTab === 'CONFIRM' && (
+                    <td>
+                      <span >IN COSTING</span>
+                    </td>
+                  )}
               </tr>
             ))}
           </tbody>
