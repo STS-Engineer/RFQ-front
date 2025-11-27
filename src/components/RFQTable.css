@@ -162,6 +162,11 @@
   color: #d97706;
 }
 
+.status-badge.costing {
+  background: #cee7eb;
+  color: #054a67;
+}
+
 .status-badge.approved {
   background: #f0fdf4;
   color: #16a34a;
@@ -640,6 +645,143 @@
 .tab-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(37, 117, 252, 0.3);
+}
+/* Hover effect for all tabs */
+.tab-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(37, 117, 252, 0.3);
+}
+/* Add to RFQTable.css */
+.table-container.no-horizontal-scroll {
+  overflow-x: hidden;
+}
+
+.rfq-table {
+  table-layout: fixed;
+  width: 100%;
+  min-width: 1300px; /* Increased to accommodate more space */
+}
+
+/* Optimized column widths with more space for Project Status */
+.rfq-table th:nth-child(1), /* RFQ ID */
+.rfq-table td:nth-child(1) {
+  width: 95px;
+  min-width: 95px;
+}
+
+.rfq-table th:nth-child(2), /* Requester */
+.rfq-table td:nth-child(2) {
+  width: 110px;
+  min-width: 110px;
+}
+
+.rfq-table th:nth-child(3), /* Customer */
+.rfq-table td:nth-child(3) {
+  width: 140px;
+  min-width: 140px;
+}
+
+.rfq-table th:nth-child(4), /* Product Line */
+.rfq-table td:nth-child(4) {
+  width: 95px;
+  min-width: 95px;
+}
+
+.rfq-table th:nth-child(5), /* Customer PN */
+.rfq-table td:nth-child(5) {
+  width: 110px;
+  min-width: 110px;
+}
+
+.rfq-table th:nth-child(6), /* Application */
+.rfq-table td:nth-child(6) {
+  width: 110px;
+  min-width: 110px;
+}
+
+.rfq-table th:nth-child(7), /* Annual Volume */
+.rfq-table td:nth-child(7) {
+  width: 95px;
+  min-width: 95px;
+  text-align: right;
+}
+
+.rfq-table th:nth-child(8), /* Target Price */
+.rfq-table td:nth-child(8) {
+  width: 95px;
+  min-width: 95px;
+  text-align: right;
+}
+
+.rfq-table th:nth-child(9), /* TO Total */
+.rfq-table td:nth-child(9) {
+  width: 95px;
+  min-width: 95px;
+  text-align: right;
+}
+
+.rfq-table th:nth-child(10), /* Market */
+.rfq-table td:nth-child(10) {
+  width: 75px;
+  min-width: 75px;
+}
+
+.rfq-table th:nth-child(11), /* Status */
+.rfq-table td:nth-child(11) {
+  width: 90px;
+  min-width: 90px;
+}
+
+/* 🔥 INCREASED SPACE FOR PROJECT STATUS */
+.rfq-table th:nth-child(12), /* Project Status */
+.rfq-table td:nth-child(12) {
+  width: 120px; /* Increased from 100px to 120px */
+  min-width: 120px;
+  padding: 12px 16px !important; /* More padding */
+}
+
+/* Enhanced padding for all cells */
+.rfq-table th,
+.rfq-table td {
+  padding: 12px 14px; /* Increased padding for better readability */
+  line-height: 1.3;
+}
+
+/* Project Status badge styling - make it more prominent */
+
+
+/* Text truncation for long content */
+.rfq-table td {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 0;
+}
+
+/* Allow some columns to show full text on hover */
+.rfq-table td:hover {
+  overflow: visible;
+  white-space: normal;
+  background: #f8fafc;
+  z-index: 1;
+  position: relative;
+}
+
+/* Specifically for Project Status column - ensure full text visibility */
+.rfq-table td:nth-child(12):hover {
+  overflow: visible;
+  white-space: normal;
+  min-width: 140px; /* Expand on hover */
+}
+
+/* Make the table header more compact to free up space */
+.rfq-table th {
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  background: #f8fafc;
+  font-weight: 600;
+  color: #475569;
+  border-bottom: 2px solid #e2e8f0;
 }
 
 
