@@ -21,20 +21,20 @@ const RFQTable: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({
-  rfq_id: '',
-  customer_name: '',
-  product_line: '',
-  customer_pn: '',
-  annual_volume_min: '',
-  annual_volume_max: '',
-  target_price_min: '',
-  target_price_max: '',
-  to_total_min: '',
-  to_total_max: '',
-  requester: '',
-  delivery_zone:'',
-  application: '',
-});
+    rfq_id: '',
+    customer_name: '',
+    product_line: '',
+    customer_pn: '',
+    annual_volume_min: '',
+    annual_volume_max: '',
+    target_price_min: '',
+    target_price_max: '',
+    to_total_min: '',
+    to_total_max: '',
+    requester: '',
+    delivery_zone: '',
+    application: '',
+  });
 
   const [activeTab, setActiveTab] = useState<'PENDING' | 'CONFIRM' | 'DECLINE'>('PENDING');
 
@@ -76,8 +76,8 @@ const RFQTable: React.FC = () => {
       to_total_min: '',
       to_total_max: '',
       requester: '',
-      delivery_zone:'',
-      application:''
+      delivery_zone: '',
+      application: ''
     });
     setSearchTerm('');
   };
@@ -121,10 +121,10 @@ const RFQTable: React.FC = () => {
       const matchesTargetPriceMax =
         filters.target_price_max === '' ||
         (rfq.target_price_eur && rfq.target_price_eur <= parseInt(filters.target_price_max || '999999999'));
-       const matchesDeliveryzone =
+      const matchesDeliveryzone =
         filters.requester === '' || rfq.delivery_zone?.toLowerCase().includes(filters.delivery_zone.toLowerCase());
 
-       const matchesApllication =
+      const matchesApllication =
         filters.application === '' || rfq.application.toLowerCase().includes(filters.application.toLowerCase());
       return (
         matchesSearch &&
@@ -184,161 +184,161 @@ const RFQTable: React.FC = () => {
             Clear All Filters
           </button>
         </div>
-   <div className="filters-grid">
-  {/* RFQ ID */}
-  <div className="filter-group">
-    <label>RFQ ID</label>
-    <input
-      type="text"
-      value={filters.rfq_id}
-      onChange={e => handleFilterChange('rfq_id', e.target.value)}
-      placeholder="Enter RFQ"
-      className="filter-input"
-    />
-  </div>
+        <div className="filters-grid">
+          {/* RFQ ID */}
+          <div className="filter-group">
+            <label>RFQ ID</label>
+            <input
+              type="text"
+              value={filters.rfq_id}
+              onChange={e => handleFilterChange('rfq_id', e.target.value)}
+              placeholder="Enter RFQ"
+              className="filter-input"
+            />
+          </div>
 
-  {/* Customer Name */}
-  <div className="filter-group">
-    <label>Customer</label>
-    <input
-      type="text"
-      value={filters.customer_name}
-      onChange={e => handleFilterChange('customer_name', e.target.value)}
-      placeholder="Enter customer name"
-      className="filter-input"
-    />
-  </div>
-    {/* Marker*/}
-  <div className="filter-group">
-    <label>Market</label>
-    <input
-      type="text"
-      value={filters.delivery_zone}
-      onChange={e => handleFilterChange('delivery_zone', e.target.value)}
-      placeholder="Enter Delivery Zone"
-      className="filter-input"
-    />
-  </div>
+          {/* Customer Name */}
+          <div className="filter-group">
+            <label>Customer</label>
+            <input
+              type="text"
+              value={filters.customer_name}
+              onChange={e => handleFilterChange('customer_name', e.target.value)}
+              placeholder="Enter customer name"
+              className="filter-input"
+            />
+          </div>
+          {/* Marker*/}
+          <div className="filter-group">
+            <label>Market</label>
+            <input
+              type="text"
+              value={filters.delivery_zone}
+              onChange={e => handleFilterChange('delivery_zone', e.target.value)}
+              placeholder="Enter Delivery Zone"
+              className="filter-input"
+            />
+          </div>
 
-  {/* Requester */}
-  <div className="filter-group">
-    <label>Requester</label>
-    <input
-      type="text"
-      value={filters.requester}
-      onChange={e => handleFilterChange('requester', e.target.value)}
-      placeholder="Enter requester email"
-      className="filter-input"
-    />
-  </div>
+          {/* Requester */}
+          <div className="filter-group">
+            <label>Requester</label>
+            <input
+              type="text"
+              value={filters.requester}
+              onChange={e => handleFilterChange('requester', e.target.value)}
+              placeholder="Enter requester email"
+              className="filter-input"
+            />
+          </div>
 
-  {/* Product Line */}
-  <div className="filter-group">
-    <label>Product Line</label>
-    <select
-      value={filters.product_line}
-      onChange={e => handleFilterChange('product_line', e.target.value)}
-      className="filter-select"
-    >
-      <option value="">All Product Lines</option>
-      {getUniqueProductLines().map(line => (
-        <option key={line} value={line}>
-          {line}
-        </option>
-      ))}
-    </select>
-  </div>
+          {/* Product Line */}
+          <div className="filter-group">
+            <label>Product Line</label>
+            <select
+              value={filters.product_line}
+              onChange={e => handleFilterChange('product_line', e.target.value)}
+              className="filter-select"
+            >
+              <option value="">All Product Lines</option>
+              {getUniqueProductLines().map(line => (
+                <option key={line} value={line}>
+                  {line}
+                </option>
+              ))}
+            </select>
+          </div>
 
-  {/* Customer PN */}
-  <div className="filter-group">
-    <label>Customer PN</label>
-    <input
-      type="text"
-      value={filters.customer_pn}
-      onChange={e => handleFilterChange('customer_pn', e.target.value)}
-      placeholder="Enter Customer PN"
-      className="filter-input"
-    />
-  </div>
+          {/* Customer PN */}
+          <div className="filter-group">
+            <label>Customer PN</label>
+            <input
+              type="text"
+              value={filters.customer_pn}
+              onChange={e => handleFilterChange('customer_pn', e.target.value)}
+              placeholder="Enter Customer PN"
+              className="filter-input"
+            />
+          </div>
 
-  {/* Application */}
-  <div className="filter-group">
-    <label>Application</label>
-    <input
-      type="text"
-      value={filters.application}
-      onChange={e => handleFilterChange('application', e.target.value)}
-      placeholder="Enter Application"
-      className="filter-input"
-    />
-  </div>
-     
-  {/* Annual Volume */}
-  <div className="filter-group">
-    <label>Annual Volume</label>
-    <div className="range-inputs">
-      <input
-        type="number"
-        value={filters.annual_volume_min}
-        onChange={e => handleFilterChange('annual_volume_min', e.target.value)}
-        placeholder="Min"
-        className="filter-input"
-      />
-      <span>to</span>
-      <input
-        type="number"
-        value={filters.annual_volume_max}
-        onChange={e => handleFilterChange('annual_volume_max', e.target.value)}
-        placeholder="Max"
-        className="filter-input"
-      />
-    </div>
-  </div>
+          {/* Application */}
+          <div className="filter-group">
+            <label>Application</label>
+            <input
+              type="text"
+              value={filters.application}
+              onChange={e => handleFilterChange('application', e.target.value)}
+              placeholder="Enter Application"
+              className="filter-input"
+            />
+          </div>
 
-  {/* Target Price */}
-  <div className="filter-group">
-    <label>Target Price (€)</label>
-    <div className="range-inputs">
-      <input
-        type="number"
-        value={filters.target_price_min}
-        onChange={e => handleFilterChange('target_price_min', e.target.value)}
-        placeholder="Min"
-        className="filter-input"
-      />
-      <span>to</span>
-      <input
-        type="number"
-        value={filters.target_price_max}
-        onChange={e => handleFilterChange('target_price_max', e.target.value)}
-        placeholder="Max"
-        className="filter-input"
-      />
-    </div>
-  </div>
+          {/* Annual Volume */}
+          <div className="filter-group">
+            <label>Annual Volume</label>
+            <div className="range-inputs">
+              <input
+                type="number"
+                value={filters.annual_volume_min}
+                onChange={e => handleFilterChange('annual_volume_min', e.target.value)}
+                placeholder="Min"
+                className="filter-input"
+              />
+              <span>to</span>
+              <input
+                type="number"
+                value={filters.annual_volume_max}
+                onChange={e => handleFilterChange('annual_volume_max', e.target.value)}
+                placeholder="Max"
+                className="filter-input"
+              />
+            </div>
+          </div>
 
-  {/* TO Total */}
-  <div className="filter-group">
-    <label>TO Total (k€)</label>
-    <div className="range-inputs">
-      <input
-        type="number"
-        value={filters.to_total_min}
-        onChange={e => handleFilterChange('to_total_min', e.target.value)}
-        placeholder="Min"
-        className="filter-input"
-      />
-      <span>to</span>
-      <input
-        type="number"
-        value={filters.to_total_max}
-        onChange={e => handleFilterChange('to_total_max', e.target.value)}
-        placeholder="Max"
-        className="filter-input"
-      />
-    </div>
-  </div>
-</div>
+          {/* Target Price */}
+          <div className="filter-group">
+            <label>Target Price (€)</label>
+            <div className="range-inputs">
+              <input
+                type="number"
+                value={filters.target_price_min}
+                onChange={e => handleFilterChange('target_price_min', e.target.value)}
+                placeholder="Min"
+                className="filter-input"
+              />
+              <span>to</span>
+              <input
+                type="number"
+                value={filters.target_price_max}
+                onChange={e => handleFilterChange('target_price_max', e.target.value)}
+                placeholder="Max"
+                className="filter-input"
+              />
+            </div>
+          </div>
+
+          {/* TO Total */}
+          <div className="filter-group">
+            <label>TO Total (k€)</label>
+            <div className="range-inputs">
+              <input
+                type="number"
+                value={filters.to_total_min}
+                onChange={e => handleFilterChange('to_total_min', e.target.value)}
+                placeholder="Min"
+                className="filter-input"
+              />
+              <span>to</span>
+              <input
+                type="number"
+                value={filters.to_total_max}
+                onChange={e => handleFilterChange('to_total_max', e.target.value)}
+                placeholder="Max"
+                className="filter-input"
+              />
+            </div>
+          </div>
+        </div>
 
       </div>
 
@@ -356,53 +356,68 @@ const RFQTable: React.FC = () => {
               <th>Customer</th>
               <th>Product Line</th>
               <th>Customer PN</th>
-               <th>Application</th>
+              <th>Application</th>
               <th>Annual Volume</th>
               <th>Target Price (€)</th>
               <th>TO Total (k€)</th>
-             <th>Market</th>
+              <th>Market</th>
               <th>Status</th>
-             {activeTab === 'CONFIRM' ? (
+
+              {/* 🔥 Always show this column when on the CONFIRM tab */}
+               {/* 🔥 ALWAYS render an empty th when NOT CONFIRM */}
+              {activeTab === 'CONFIRM' ? (
                <th>Project Status</th>
                ) : (
               <th style={{ width: "0px", padding: 0, border: "none" }}></th>
               )}
             </tr>
           </thead>
+
           <tbody>
-            {filterRfqs(groupedRfqs[activeTab]).map(rfq => (
-              <tr key={rfq.rfq_id} onClick={() => handleRowClick(rfq)}   className={`clickable-row ${selectedRfq?.rfq_id === rfq.rfq_id ? 'selected-row' : ''}`}>
-                <td>{rfq.rfq_id}</td>
-               <td>
-                {rfq.created_by_email
-                   ? (() => {
-                  const name = rfq.created_by_email.split('@')[0].replace(/\./g, ' ');
-                  return name.charAt(0).toUpperCase() + name.slice(1);
-                   })()
-                 : '-'}
-              </td>
+            {filterRfqs(groupedRfqs[activeTab]).length > 0 ? (
+              filterRfqs(groupedRfqs[activeTab]).map(rfq => (
+                <tr
+                  key={rfq.rfq_id}
+                  onClick={() => handleRowClick(rfq)}
+                  className={`clickable-row ${selectedRfq?.rfq_id === rfq.rfq_id ? 'selected-row' : ''}`}
+                >
+                  <td>{rfq.rfq_id}</td>
+                  <td>
+                    {rfq.created_by_email
+                      ? (() => {
+                        const name = rfq.created_by_email.split('@')[0].replace(/\./g, ' ');
+                        return name.charAt(0).toUpperCase() + name.slice(1);
+                      })()
+                      : '-'}
+                  </td>
+
+                  <td>
+                    <div className="customer-info">
+                      <div>{rfq.customer_name}</div>
+                      <div className="customer-email">{rfq.contact_email || '-'}</div>
+                    </div>
+                  </td>
+
+                  <td>{rfq.product_line}</td>
+                  <td>{rfq.customer_pn}</td>
+                  <td>{rfq.application}</td>
+                  <td>{rfq.annual_volume?.toLocaleString()}</td>
+                  <td>{rfq.target_price_eur ? rfq.target_price_eur.toLocaleString() : '-'}€</td>
+                  <td>{rfq.to_total ? Math.round(rfq.to_total).toLocaleString() : '-'}k€</td>
+                  <td>{rfq.delivery_zone}</td>
+
+                  <td>
+                    <span className={getStatusBadge(rfq.status)}>{rfq.status}</span>
+                  </td>
+
+                  {/* 🔥 Show IN COSTING only for Confirm tab */}
+              {/* Project Status column */}
+              {activeTab === "CONFIRM" ? (
                 <td>
-                  <div className="customer-info">
-                    <div>{rfq.customer_name}</div>
-                    <div className="customer-email">{rfq.contact_email || '-'}</div>
-                  </div>
+                <span className="status-badge costing">IN COSTING</span>
                 </td>
-                <td>{rfq.product_line}</td>
-                <td>{rfq.customer_pn}</td>
-                 <td>{rfq.application}</td>
-                <td>{rfq.annual_volume?.toLocaleString()}</td>
-                <td>{rfq.target_price_eur ? rfq.target_price_eur.toLocaleString() : '-'}€</td>
-                <td>{rfq.to_total ? Math.round(rfq.to_total).toLocaleString() : '-'}k€</td>
-                <td>{rfq.delivery_zone}</td>
-                <td>
-                  <span className={getStatusBadge(rfq.status)}>{rfq.status}</span>
-                </td>
-                {activeTab === "CONFIRM" ? (
-                <td>
-               <span className="status-badge costing">IN COSTING</span>
-               </td>
                 ) : (
-               <td style={{ width: "100px", minWidth: "100px", padding: "12px 14px", borderBottom: "1px solid #f1f5f9" }}></td>
+               <td style={{ width: "0px", padding: 0, border: "none" }}></td>
                 )}
                 </tr>
               ))
@@ -419,6 +434,8 @@ const RFQTable: React.FC = () => {
             )}
           </tbody>
         </table>
+
+
         {filterRfqs(groupedRfqs[activeTab]).length === 0 && (
           <div className="empty-state">
             <h3>No RFQs Found</h3>
