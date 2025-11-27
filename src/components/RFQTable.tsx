@@ -403,7 +403,7 @@ const RFQTable: React.FC = () => {
                   <td>{rfq.application}</td>
                   <td>{rfq.annual_volume?.toLocaleString()}</td>
                   <td>{rfq.target_price_eur ? rfq.target_price_eur.toLocaleString() : '-'}€</td>
-                  <td>{rfq.to_total ? Math.round(rfq.to_total).toLocaleString() : '-'}k€</td>
+                  <td>{rfq.to_total}</td>
                   <td>{rfq.delivery_zone}</td>
 
                   <td>
