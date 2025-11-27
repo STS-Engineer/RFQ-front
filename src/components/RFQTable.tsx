@@ -362,7 +362,11 @@ const RFQTable: React.FC = () => {
               <th>TO Total (k€)</th>
              <th>Market</th>
               <th>Status</th>
-              {activeTab === 'CONFIRM' && <th>Project Status</th>}
+             {activeTab === 'CONFIRM' ? (
+               <th>Project Status</th>
+               ) : (
+              <th style={{ width: "0px", padding: 0, border: "none" }}></th>
+              )}
             </tr>
           </thead>
           <tbody>
