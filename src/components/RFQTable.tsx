@@ -393,16 +393,28 @@ const RFQTable: React.FC = () => {
                 <td>
                   <span className={getStatusBadge(rfq.status)}>{rfq.status}</span>
                 </td>
-                 {activeTab === 'CONFIRM' && (
-                    <td>
-                      <span >IN COSTING</span>
-                    </td>
-                  )}
+                {activeTab === "CONFIRM" ? (
+                <td>
+               <span className="status-badge costing">IN COSTING</span>
+               </td>
+                ) : (
+               <td style={{ width: "100px", minWidth: "100px", padding: "12px 14px", borderBottom: "1px solid #f1f5f9" }}></td>
+                )}
+                </tr>
+              ))
+            ) : (
+              // 🔥 Fix: correct colSpan so the header aligns properly
+              <tr>
+                <td
+                  colSpan={activeTab === "CONFIRM" ? 12 : 11}
+                  className="no-data"
+                >
+                  No RFQs Found
+                </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
-
         {filterRfqs(groupedRfqs[activeTab]).length === 0 && (
           <div className="empty-state">
             <h3>No RFQs Found</h3>
