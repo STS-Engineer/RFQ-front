@@ -471,7 +471,7 @@ const handleDocumentClick = (filePath: string) => {
 
                         try {
                           const response = await axios.post(
-                            `http://localhost:4000/ajouter/rfq/${rfq.rfq_id}/upload`,
+                            `https://rfq-back.azurewebsites.net/ajouter/rfq/${rfq.rfq_id}/upload`,
                             formData,
                             { headers: { "Content-Type": "multipart/form-data" } }
                           );
@@ -545,7 +545,7 @@ const handleDocumentClick = (filePath: string) => {
                           setUploading(true);
 
                           const response = await axios.post(
-                            `http://localhost:4000/ajouter/rfq/send-costing-email/${rfq.rfq_id}`,
+                            `https://rfq-back.azurewebsites.net/ajouter/rfq/send-costing-email/${rfq.rfq_id}`,
                             formData,
                             {
                               headers: { "Content-Type": "multipart/form-data" },
