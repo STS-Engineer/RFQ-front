@@ -21,7 +21,11 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
   const [iframeKey, setIframeKey] = useState<number>(0); // ⬅️ new key to force re-render
   const [uploading, setUploading] = useState(false);
   const [uploadMessage, setUploadMessage] = useState<string | null>(null);
-
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [previewType, setPreviewType] = useState(null);
+  const [showPreview, setShowPreview] = useState(false);
+  const [costingFile, setCostingFile] = useState(rfq.costingfile || "");
+  
   useEffect(() => {
     if (isOpen) console.log('RFQ data loaded in modal:', rfq);
   }, [isOpen, rfq]);
