@@ -622,11 +622,12 @@ const handleDocumentClick = (filePath: string) => {
 
                         {previewType === "pdf" && (
                           <iframe
-                            key={previewUrl} // force reload if same file
-                            src={previewUrl}
-                            style={{ width: "100%", height: "100%" }}
-                            frameBorder="0"
-                          ></iframe>
+                          key={previewUrl} // force reload if same file
+                          src={previewUrl}
+                          style={{ width: "100%", height: "100%" }}
+                          frameBorder="0"
+                          title={`PDF Preview - ${previewUrl.split('/').pop()}`} // ✅ Add unique title
+                         ></iframe>
                         )}
                       </div>
                     </div>
