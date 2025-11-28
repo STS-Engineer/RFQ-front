@@ -446,7 +446,7 @@ const handleDocumentClick = (filePath: string) => {
           </div>
     
        {/* Costing Section */}
-      {rfq.status === 'CONFIRM' && (
+       {rfq.status === 'CONFIRM' && (
               <div className="detail-section">
                 <h3 className="section-title">Costing</h3>
                 <div className="section-content">
@@ -456,7 +456,7 @@ const handleDocumentClick = (filePath: string) => {
                     <label>Upload Costing File</label>
                     <input
                       type="file"
-                      accept=".pdf,.xlsx,.xls"
+                      accept=".pdf,.xlsx,.xls,.jpg,.jpeg,.png,.doc,.docx"
                       id={`costingFile-${rfq.rfq_id}`}
                       disabled={uploading}
                       onChange={async (e) => {
@@ -476,11 +476,21 @@ const handleDocumentClick = (filePath: string) => {
                             { headers: { "Content-Type": "multipart/form-data" } }
                           );
 
+                          // ✅ Update state to latest file
+                          const newFilePath = response.data.rfq.costingfile || `/uploads/${file.name}`;
+                          setCostingFile(newFilePath);
+
+                          // ✅ Reset preview states
+                          setPreviewUrl(null);
+                          setPreviewType(null);
+                          setShowPreview(false);
+
                           setUploadMessage("✅ Costing file uploaded successfully!");
+                          setTimeout(() => {
+                            setUploadMessage("");
+                          }, 1000)
                           console.log("File uploaded:", response.data);
 
-                          // ✅ Update costing file path dynamically
-                          rfq.costingfile = response.data.filePath || file.name;
                         } catch (err: any) {
                           console.error("❌ Error uploading costing file:", err);
                           setUploadMessage("❌ Failed to upload costing file.");
@@ -488,35 +498,57 @@ const handleDocumentClick = (filePath: string) => {
                           setUploading(false);
                         }
                       }}
+
                     />
 
                     {uploading && <p style={{ color: "orange" }}>Uploading...</p>}
                     {uploadMessage && (
-                      <p
-                        style={{
-                          color: uploadMessage.startsWith("✅") ? "green" : "red",
-                        }}
-                      >
+                      <p style={{ color: uploadMessage.startsWith("✅") ? "green" : "red" }}>
                         {uploadMessage}
                       </p>
                     )}
                   </div>
 
-                  {/* Display Existing Costing File Path */}
-                  {rfq.costingfile && (
+                  {/* Display Existing Costing File */}
+                  {costingFile && (
                     <div className="detail-item full-width">
                       <label>Current Costing File:</label>
                       <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                         <button
                           className="view-btn"
                           onClick={() => {
-                            // Adjust base path depending on where your uploads are served
-                            const fileUrl = `https://rfq-back.azurewebsites.net${rfq.costingfile}`;
-                            window.open(fileUrl, "_blank");
+                            if (!costingFile) {
+                              toast.info("No file to preview");
+                              return;
+                            }
+
+                            const fileUrl = `http://localhost:4000${costingFile}`;
+                            const ext = costingFile.split(".").pop()?.toLowerCase();
+
+                            if (["jpg", "jpeg", "png", "gif", "bmp", "webp"].includes(ext)) {
+                              setPreviewType("image");
+                            } else if (ext === "pdf") {
+                              setPreviewType("pdf");
+                            } else if (["xls", "xlsx"].includes(ext)) {
+                              // ✅ Open Excel file in a new tab
+                              window.open(fileUrl, "_blank");
+                              return;
+                            } else {
+                              toast.info("Preview not supported for this file type.");
+                              return;
+                            }
+
+                            // ✅ Force refresh preview by clearing and setting URL
+                            setPreviewUrl(null);
+                            setTimeout(() => {
+                              setPreviewUrl(fileUrl);
+                              setShowPreview(true);
+                            }, 50); // tiny delay ensures React reloads iframe/img
                           }}
                         >
-                          👁️ View File
+                          👁️ Preview File
                         </button>
+                       
                       </div>
                     </div>
                   )}
@@ -525,7 +557,7 @@ const handleDocumentClick = (filePath: string) => {
                   <div className="detail-item full-width">
                     <button
                       className="document-btn"
-                      disabled={uploading} // Disable button when loading
+                      disabled={uploading}
                       onClick={async () => {
                         try {
                           const costingFileInput = document.querySelector<HTMLInputElement>(
@@ -541,15 +573,12 @@ const handleDocumentClick = (filePath: string) => {
                           const formData = new FormData();
                           formData.append("file", file);
 
-                          // Set loading state
                           setUploading(true);
 
                           const response = await axios.post(
                             `https://rfq-back.azurewebsites.net/ajouter/rfq/send-costing-email/${rfq.rfq_id}`,
                             formData,
-                            {
-                              headers: { "Content-Type": "multipart/form-data" },
-                            }
+                            { headers: { "Content-Type": "multipart/form-data" } }
                           );
 
                           toast.success('Costing file sent to requester successfully!');
@@ -558,7 +587,6 @@ const handleDocumentClick = (filePath: string) => {
                           console.error("❌ Error sending costing email:", err);
                           toast.error('Failed to send costing file. Please try again.');
                         } finally {
-                          // Reset loading state
                           setUploading(false);
                         }
                       }}
@@ -573,6 +601,34 @@ const handleDocumentClick = (filePath: string) => {
                       )}
                     </button>
                   </div>
+
+                  {/* Preview Modal */}
+                  {showPreview && previewUrl && (
+                    <div className="modal-overlay">
+                      <div className="modal-content" style={{ height: "90vh" }}>
+                        <button className="close-btn" onClick={() => setShowPreview(false)}>✖</button>
+
+                        {previewType === "image" && (
+                          <img
+                            src={previewUrl}
+                            alt="Preview"
+                            style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                          />
+                        )}
+
+                        {previewType === "pdf" && (
+                          <iframe
+                            key={previewUrl} // force reload if same file
+                            src={previewUrl}
+                            style={{ width: "100%", height: "100%" }}
+                            frameBorder="0"
+                          ></iframe>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+
                 </div>
               </div>
             )}
