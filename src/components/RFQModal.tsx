@@ -73,7 +73,7 @@ const handleDocumentClick = (filePath: string) => {
 
   if (!ext) return alert('Unknown file type.');
 
-  // 🧹 Clear current preview first to ensure reload
+  // 🧹 Clear current  first to ensure reload
   setPdfPreviewUrl(null);
 
   setTimeout(() => {
@@ -526,7 +526,7 @@ const handleDocumentClick = (filePath: string) => {
                               return;
                             }
 
-                            const fileUrl = `http://localhost:4000${costingFile}`;
+                            const fileUrl = `https://rfq-back.azurewebsites.net${costingFile}`;
                             const ext = costingFile.split(".").pop()?.toLowerCase();
 
                             if (["jpg", "jpeg", "png", "gif", "bmp", "webp"].includes(ext)) {
