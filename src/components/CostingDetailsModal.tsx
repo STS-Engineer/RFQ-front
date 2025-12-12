@@ -260,23 +260,7 @@ const CostingDetailsModal: React.FC<CostingDetailsModalProps> = ({
               </div>
             </div>
 
-            {/* Total Landed Cost (Sum of all bom_landedcost) */}
-            <div className="summary-card" style={{
-              background: '#e3f2fd',
-              padding: '15px',
-              borderRadius: '8px',
-              border: '1px solid #bbdefb'
-            }}>
-              <div style={{ fontSize: '12px', color: '#1565c0', fontWeight: '600' }}>
-                Total Landed Cost
-              </div>
-              <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#0d47a1' }}>
-                {formatCurrency(bomTotals.totalLandedCost)}
-              </div>
-              <div style={{ fontSize: '11px', color: '#666', marginTop: '4px' }}>
-                Sum of all Landed Costs
-              </div>
-            </div>
+     
 
             {/* Routing Operations */}
             <div className="summary-card" style={{
@@ -293,43 +277,7 @@ const CostingDetailsModal: React.FC<CostingDetailsModalProps> = ({
               </div>
             </div>
 
-            {/* Total Tooling Cost (Sum of BOM Tooling + Routing Tooling) */}
-            <div className="summary-card" style={{
-              background: '#fff3e0',
-              padding: '15px',
-              borderRadius: '8px',
-              border: '1px solid #ffcc80'
-            }}>
-              <div style={{ fontSize: '12px', color: '#ef6c00', fontWeight: '600' }}>
-                Total Tooling Cost
-              </div>
-              <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#e65100' }}>
-                {formatCurrency(totalToolingCost)}
-              </div>
-              <div style={{ fontSize: '11px', color: '#666', marginTop: '4px' }}>
-                BOM: {formatCurrency(bomTotals.totalBomTooling)}<br />
-                Routing: {formatCurrency(routingTotals.totalRoutingTooling)}
-              </div>
-            </div>
-
-            {/* Additional Summary Cards */}
-            <div className="summary-card" style={{
-              background: '#fff8e1',
-              padding: '15px',
-              borderRadius: '8px',
-              border: '1px solid #ffe082'
-            }}>
-              <div style={{ fontSize: '12px', color: '#ff8f00', fontWeight: '600' }}>
-                Total Specific CAPEX
-              </div>
-              <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#e65100' }}>
-                {formatCurrency(totalSpecificCapex)}
-              </div>
-              <div style={{ fontSize: '11px', color: '#666', marginTop: '4px' }}>
-                BOM: {formatCurrency(bomTotals.totalBomSpecificCapex)}<br />
-                Routing: {formatCurrency(routingTotals.totalRoutingSpecificCapex)}
-              </div>
-            </div>
+    
 
           </div>
 
