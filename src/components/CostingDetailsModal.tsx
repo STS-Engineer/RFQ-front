@@ -191,16 +191,6 @@ const CostingDetailsModal: React.FC<CostingDetailsModalProps> = ({
             <DollarSign size={24} style={{ color: '#4CAF50' }} />
             <div className="modal-title">
               <h2>Costing Details - RFQ: {rfqId}</h2>
-              <span className="status-badge" style={{
-                background: '#4CAF50',
-                color: 'white',
-                padding: '4px 12px',
-                borderRadius: '12px',
-                fontSize: '12px',
-                fontWeight: 'bold'
-              }}>
-                COSTING
-              </span>
             </div>
           </div>
           <div className="modal-header-actions">
