@@ -65,16 +65,14 @@ const CostingDetailsModal: React.FC<CostingDetailsModalProps> = ({
 
   if (!open) return null;
 
-  const formatCurrency = (value: number | undefined | null, currency: string = 'EUR') => {
-    if (value == null || value === undefined) return '-';
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency,
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    }).format(value);
-  };
-
+ const formatCurrency = (value: number | undefined | null, currency: string = 'EUR') => {
+  if (value == null || value === undefined) return '-';
+  return new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(value);
+ };
+ 
   const formatNumber = (value: number | undefined | null, decimals: number = 2) => {
     if (value == null || value === undefined) return '-';
     return new Intl.NumberFormat('en-US', {
