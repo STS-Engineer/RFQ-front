@@ -71,7 +71,7 @@ const CostingDetailsModal: React.FC<CostingDetailsModalProps> = ({
       style: 'currency',
       currency: currency,
       minimumFractionDigits: 2,
-      maximumFractionDigits: 4
+      maximumFractionDigits: 2
     }).format(value);
   };
 
@@ -85,10 +85,26 @@ const CostingDetailsModal: React.FC<CostingDetailsModalProps> = ({
 
   const calculateBOMTotals = () => {
     const bom = data.bomParameters || [];
+    
+    // Calculate total landed cost (sum of all bom_landedcost)
+    const totalLandedCost = bom.reduce((sum: number, item: BomItem) => {
+      return sum + (Number(item.bom_landedcost) || 0);
+    }, 0);
+    
+    // Calculate total tooling from BOM (sum of all bom_tooling)
+    const totalBomTooling = bom.reduce((sum: number, item: BomItem) => {
+      return sum + (Number(item.bom_tooling) || 0);
+    }, 0);
+    
+    // Calculate total specific CAPEX from BOM
+    const totalBomSpecificCapex = bom.reduce((sum: number, item: BomItem) => {
+      return sum + (Number(item.bom_specificcapex) || 0);
+    }, 0);
+    
     return {
-      totalLandedCost: bom.reduce((sum: number, item: BomItem) => sum + (item.bom_landedcost || 0), 0),
-      totalSpecificCapex: bom.reduce((sum: number, item: BomItem) => sum + (item.bom_specificcapex || 0), 0),
-      totalTooling: bom.reduce((sum: number, item: BomItem) => sum + (item.bom_tooling || 0), 0),
+      totalLandedCost,
+      totalBomTooling,
+      totalBomSpecificCapex,
       externalItems: bom.filter((item: BomItem) => item.sourcing_type === 'Ext').length,
       internalItems: bom.filter((item: BomItem) => item.sourcing_type === 'Int').length
     };
@@ -96,18 +112,46 @@ const CostingDetailsModal: React.FC<CostingDetailsModalProps> = ({
 
   const calculateRoutingTotals = () => {
     const routing = data.routingParameters || [];
+    
+    // Calculate total tooling cost from routing (sum of router_toolingcost_keur)
+    const totalRoutingTooling = routing.reduce((sum: number, item: RoutingItem) => {
+      return sum + (Number(item.router_toolingcost_keur) || 0);
+    }, 0);
+    
+    // Calculate total specific CAPEX from routing
+    const totalRoutingSpecificCapex = routing.reduce((sum: number, item: RoutingItem) => {
+      return sum + (Number(item.router_specificcapex) || 0);
+    }, 0);
+    
+    // Calculate total generic CAPEX from routing
+    const totalRoutingGenericCapex = routing.reduce((sum: number, item: RoutingItem) => {
+      return sum + (Number(item.router_genericcapex) || 0);
+    }, 0);
+    
+    // Calculate total setup time
+    const totalSetupTime = routing.reduce((sum: number, item: RoutingItem) => {
+      return sum + (Number(item.router_setuptime_hours) || 0);
+    }, 0);
+    
+    // Calculate average OEE
+    const avgOEE = routing.length > 0 ? 
+      routing.reduce((sum: number, item: RoutingItem) => sum + (Number(item.router_oee) || 0), 0) / routing.length : 0;
+    
     return {
-      totalGenericCapex: routing.reduce((sum: number, item: RoutingItem) => sum + (item.router_genericcapex || 0), 0),
-      totalSpecificCapex: routing.reduce((sum: number, item: RoutingItem) => sum + (item.router_specificcapex || 0), 0),
-      totalToolingCost: routing.reduce((sum: number, item: RoutingItem) => sum + (item.router_toolingcost_keur || 0), 0),
-      totalSetupTime: routing.reduce((sum: number, item: RoutingItem) => sum + (item.router_setuptime_hours || 0), 0),
-      avgOEE: routing.length > 0 ? 
-        routing.reduce((sum: number, item: RoutingItem) => sum + (item.router_oee || 0), 0) / routing.length : 0
+      totalRoutingTooling,
+      totalRoutingSpecificCapex,
+      totalRoutingGenericCapex,
+      totalSetupTime,
+      avgOEE
     };
   };
 
   const bomTotals = calculateBOMTotals();
   const routingTotals = calculateRoutingTotals();
+  
+  // Calculate GRAND TOTALS
+  const totalToolingCost = bomTotals.totalBomTooling + routingTotals.totalRoutingTooling;
+  const totalSpecificCapex = bomTotals.totalBomSpecificCapex + routingTotals.totalRoutingSpecificCapex;
 
   const handleOverlayClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) onClose();
@@ -125,9 +169,9 @@ const CostingDetailsModal: React.FC<CostingDetailsModalProps> = ({
       });
     } else {
       // Routing Export
-      csvContent += "Operation No,Description,Machine Rate/hr,Setup Time (hrs),Scrap Rate (%),OEE (%),Specific CAPEX,Generic CAPEX\n";
+      csvContent += "Operation No,Description,Machine Rate/hr,Setup Time (hrs),Scrap Rate (%),OEE (%),Specific CAPEX,Generic CAPEX,Tooling Cost\n";
       data.routingParameters.forEach((item: RoutingItem) => {
-        csvContent += `${item.router_operation_no || 0},"${item.router_operation_description || ''}",${item.router_machinerate_perhour || 0},${item.router_setuptime_hours || 0},${((item.router_scraprate || 0) * 100).toFixed(2)},${((item.router_oee || 0) * 100).toFixed(2)},${item.router_specificcapex || 0},${item.router_genericcapex || 0}\n`;
+        csvContent += `${item.router_operation_no || 0},"${item.router_operation_description || ''}",${item.router_machinerate_perhour || 0},${item.router_setuptime_hours || 0},${((item.router_scraprate || 0) * 100).toFixed(2)},${((item.router_oee || 0) * 100).toFixed(2)},${item.router_specificcapex || 0},${item.router_genericcapex || 0},${item.router_toolingcost_keur || 0}\n`;
       });
     }
     
@@ -183,6 +227,7 @@ const CostingDetailsModal: React.FC<CostingDetailsModalProps> = ({
             gap: '15px',
             marginBottom: '25px'
           }}>
+            {/* Total BOM Items */}
             <div className="summary-card" style={{
               background: '#e8f5e9',
               padding: '15px',
@@ -215,6 +260,7 @@ const CostingDetailsModal: React.FC<CostingDetailsModalProps> = ({
               </div>
             </div>
 
+            {/* Total Landed Cost (Sum of all bom_landedcost) */}
             <div className="summary-card" style={{
               background: '#e3f2fd',
               padding: '15px',
@@ -227,8 +273,12 @@ const CostingDetailsModal: React.FC<CostingDetailsModalProps> = ({
               <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#0d47a1' }}>
                 {formatCurrency(bomTotals.totalLandedCost)}
               </div>
+              <div style={{ fontSize: '11px', color: '#666', marginTop: '4px' }}>
+                Sum of all Landed Costs
+              </div>
             </div>
 
+            {/* Routing Operations */}
             <div className="summary-card" style={{
               background: '#f3e5f5',
               padding: '15px',
@@ -243,6 +293,7 @@ const CostingDetailsModal: React.FC<CostingDetailsModalProps> = ({
               </div>
             </div>
 
+            {/* Total Tooling Cost (Sum of BOM Tooling + Routing Tooling) */}
             <div className="summary-card" style={{
               background: '#fff3e0',
               padding: '15px',
@@ -253,9 +304,33 @@ const CostingDetailsModal: React.FC<CostingDetailsModalProps> = ({
                 Total Tooling Cost
               </div>
               <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#e65100' }}>
-                {formatCurrency(bomTotals.totalTooling + routingTotals.totalToolingCost)}
+                {formatCurrency(totalToolingCost)}
+              </div>
+              <div style={{ fontSize: '11px', color: '#666', marginTop: '4px' }}>
+                BOM: {formatCurrency(bomTotals.totalBomTooling)}<br />
+                Routing: {formatCurrency(routingTotals.totalRoutingTooling)}
               </div>
             </div>
+
+            {/* Additional Summary Cards */}
+            <div className="summary-card" style={{
+              background: '#fff8e1',
+              padding: '15px',
+              borderRadius: '8px',
+              border: '1px solid #ffe082'
+            }}>
+              <div style={{ fontSize: '12px', color: '#ff8f00', fontWeight: '600' }}>
+                Total Specific CAPEX
+              </div>
+              <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#e65100' }}>
+                {formatCurrency(totalSpecificCapex)}
+              </div>
+              <div style={{ fontSize: '11px', color: '#666', marginTop: '4px' }}>
+                BOM: {formatCurrency(bomTotals.totalBomSpecificCapex)}<br />
+                Routing: {formatCurrency(routingTotals.totalRoutingSpecificCapex)}
+              </div>
+            </div>
+
           </div>
 
           {/* Tabs */}
@@ -330,7 +405,7 @@ const CostingDetailsModal: React.FC<CostingDetailsModalProps> = ({
                       <td style={{ padding: '12px' }}>{item.bom_supplier || '-'}</td>
                       <td style={{ padding: '12px' }}>{formatNumber(item.bom_qty_per_product, 4)}</td>
                       <td style={{ padding: '12px' }}>{formatCurrency(item.bom_price_origin, item.bom_currency_origin)}</td>
-                      <td style={{ padding: '12px' }}>{formatCurrency(item.bom_landedcost)}</td>
+                      <td style={{ padding: '12px', fontWeight: 'bold' }}>{formatCurrency(item.bom_landedcost)}</td>
                       <td style={{ padding: '12px' }}>
                         <span style={{
                           padding: '4px 10px',
@@ -342,9 +417,28 @@ const CostingDetailsModal: React.FC<CostingDetailsModalProps> = ({
                           {item.sourcing_type || 'N/A'}
                         </span>
                       </td>
-                      <td style={{ padding: '12px' }}>{formatCurrency(item.bom_tooling)}</td>
+                      <td style={{ padding: '12px', fontWeight: 'bold' }}>{formatCurrency(item.bom_tooling)}</td>
                     </tr>
                   ))}
+                  {/* Total Row */}
+                  {data.bomParameters && data.bomParameters.length > 0 && (
+                    <tr style={{
+                      background: '#f9f9f9',
+                      borderTop: '2px solid #ddd',
+                      fontWeight: 'bold'
+                    }}>
+                      <td style={{ padding: '12px' }} colSpan={5}>
+                        <strong>TOTAL</strong>
+                      </td>
+                      <td style={{ padding: '12px', color: '#0d47a1' }}>
+                        {formatCurrency(bomTotals.totalLandedCost)}
+                      </td>
+                      <td style={{ padding: '12px' }}></td>
+                      <td style={{ padding: '12px', color: '#e65100' }}>
+                        {formatCurrency(bomTotals.totalBomTooling)}
+                      </td>
+                    </tr>
+                  )}
                   {(!data.bomParameters || data.bomParameters.length === 0) && (
                     <tr>
                       <td colSpan={8} style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
@@ -378,6 +472,7 @@ const CostingDetailsModal: React.FC<CostingDetailsModalProps> = ({
                     <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #ddd' }}>Scrap Rate</th>
                     <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #ddd' }}>OEE</th>
                     <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #ddd' }}>Spec CAPEX</th>
+                    <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #ddd' }}>Tooling Cost</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -398,11 +493,30 @@ const CostingDetailsModal: React.FC<CostingDetailsModalProps> = ({
                         {item.router_oee ? `${formatNumber(item.router_oee * 100, 1)}%` : '-'}
                       </td>
                       <td style={{ padding: '12px' }}>{formatCurrency(item.router_specificcapex)}</td>
+                      <td style={{ padding: '12px', fontWeight: 'bold' }}>{formatCurrency(item.router_toolingcost_keur)}</td>
                     </tr>
                   ))}
+                  {/* Total Row */}
+                  {data.routingParameters && data.routingParameters.length > 0 && (
+                    <tr style={{
+                      background: '#f9f9f9',
+                      borderTop: '2px solid #ddd',
+                      fontWeight: 'bold'
+                    }}>
+                      <td style={{ padding: '12px' }} colSpan={6}>
+                        <strong>TOTAL</strong>
+                      </td>
+                      <td style={{ padding: '12px', color: '#e65100' }}>
+                        {formatCurrency(routingTotals.totalRoutingSpecificCapex)}
+                      </td>
+                      <td style={{ padding: '12px', color: '#e65100' }}>
+                        {formatCurrency(routingTotals.totalRoutingTooling)}
+                      </td>
+                    </tr>
+                  )}
                   {(!data.routingParameters || data.routingParameters.length === 0) && (
                     <tr>
-                      <td colSpan={7} style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
+                      <td colSpan={8} style={{ padding: '20px', textAlign: 'center', color: '#999' }}>
                         No routing data available
                       </td>
                     </tr>
