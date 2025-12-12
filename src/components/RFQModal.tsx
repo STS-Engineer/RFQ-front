@@ -8,8 +8,8 @@ import { saveAs } from 'file-saver';
 import axios from "axios";
 import { UserCheck, UserPlus, Sparkles, Eye, DollarSign } from 'lucide-react';
 import logo from '../assets/logo-avocarbon-1-removebg-preview.png';
-import CostingDetailsModal from './CostingDetailsModal.tsx'; // Import the costing modal
-import { toast } from 'react-toastify'; // Add if not already imported
+import CostingDetailsModal from './CostingDetailsModal.tsx';
+import { toast } from 'react-toastify';
 
 interface RFQModalProps {
   rfq: RFQ;
@@ -37,7 +37,6 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
 
   if (!isOpen) return null;
 
-  // ------------------- Helper Functions -------------------
   const formatDate = (date: string) => {
     if (!date) return 'N/A';
     const d = new Date(date);
@@ -62,7 +61,6 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
     return `https://rfq-back.azurewebsites.net/${filePath}`;
   };
 
-  // ------------------- Fetch Costing Details -------------------
   const fetchCostingDetails = async () => {
     if (!rfq?.rfq_id) return;
     
@@ -85,12 +83,10 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
     }
   };
 
-  // ------------------- Overlay Click -------------------
   const handleOverlayClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) onClose();
   };
 
-  // ------------------- Document Handling -------------------
   const handleDocumentClick = (filePath: string) => {
     if (!filePath) return;
 
@@ -121,7 +117,6 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
     }, 200);
   };
 
-  // ------------------- Export: PDF -------------------
   const exportToPDF = async () => {
     try {
       const element = document.getElementById('rfq-modal-content');
@@ -172,7 +167,6 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
     }
   };
 
-  // ------------------- Export: Excel -------------------
   const exportToExcel = () => {
     try {
       const excelData = [
@@ -245,7 +239,6 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
     }
   };
 
-  // ------------------- Open AI Assistant -------------------
   const openAIAssistant = () => {
     window.open(
       'https://chatgpt.com/g/g-68d8e2cc2cc08191bafeefd60b31cc62-rfq-integration',
@@ -254,7 +247,6 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
     );
   };
 
-  // ------------------- Send Costing File -------------------
   const handleSendCosting = async () => {
     try {
       const costingFileInput = document.querySelector<HTMLInputElement>(
@@ -508,7 +500,6 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
                 <div className="detail-section">
                   <h3 className="section-title">Costing</h3>
                   <div className="section-content">
-                    
                     {/* View Costing Details Button */}
                     <div className="detail-item full-width">
                       <button
@@ -533,7 +524,10 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
                         <Eye size={18} />
                         {loadingCosting ? 'Loading...' : 'View Costing Details'}
                       </button>
-                    </div>  
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
