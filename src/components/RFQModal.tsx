@@ -8,6 +8,7 @@ import { saveAs } from 'file-saver';
 import axios from "axios";
 import { UserCheck, UserPlus, Sparkles } from 'lucide-react';
 import logo from '../assets/logo-avocarbon-1-removebg-preview.png';
+import CostingDetailsModal from './CostingDetailsModal.tsx'; // Import the costing modal
 
 interface RFQModalProps {
   rfq: RFQ;
@@ -56,6 +57,29 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
     if (!filePath) return '';
     if (filePath.startsWith('http')) return filePath;
     return `https://rfq-back.azurewebsites.net/${filePath}`;
+  };
+
+    // ------------------- Fetch Costing Details -------------------
+  const fetchCostingDetails = async () => {
+    if (!rfq?.rfq_id) return;
+    
+    setLoadingCosting(true);
+    try {
+      const response = await fetch(`https://rfq-back.azurewebsites.net/ajouter/costing-details/${rfq.rfq_id}`);
+      const result = await response.json();
+      
+      if (result.success) {
+        setCostingDetails(result.data);
+        setCostingModalOpen(true);
+      } else {
+        toast.error('Failed to fetch costing details: ' + result.message);
+      }
+    } catch (error) {
+      console.error('Error fetching costing details:', error);
+      toast.error('Error fetching costing details. Please try again.');
+    } finally {
+      setLoadingCosting(false);
+    }
   };
 
   // ------------------- Overlay Click -------------------
@@ -455,6 +479,32 @@ const handleDocumentClick = (filePath: string) => {
                 <h3 className="section-title">Costing</h3>
                 <div className="section-content">
 
+                      {/* View Costing Details Button */}
+                    <div className="detail-item full-width">
+                      <button
+                        className="view-costing-btn"
+                        onClick={fetchCostingDetails}
+                        disabled={loadingCosting}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          padding: '10px 16px',
+                          backgroundColor: '#4CAF50',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          fontSize: '14px',
+                          fontWeight: '500',
+                          marginBottom: '15px'
+                        }}
+                      >
+                        <Eye size={18} />
+                        {loadingCosting ? 'Loading...' : 'View Costing Details'}
+                      </button>
+                    </div>
+
                   {/* Upload Costing File */}
                   <div className="detail-item full-width">
                     <label>Upload Costing File</label>
@@ -651,6 +701,16 @@ const handleDocumentClick = (filePath: string) => {
 
       </div>
     </div>
+        {/* Costing Details Modal */}
+      {costingModalOpen && (
+        <CostingDetailsModal
+          open={costingModalOpen}
+          onClose={() => setCostingModalOpen(false)}
+          rfqId={rfq.rfq_id}
+          initialData={costingDetails}
+        />
+      )}
+    </>
   );
 };
 
