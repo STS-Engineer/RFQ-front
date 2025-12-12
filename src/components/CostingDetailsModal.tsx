@@ -149,9 +149,7 @@ const CostingDetailsModal: React.FC<CostingDetailsModalProps> = ({
   const bomTotals = calculateBOMTotals();
   const routingTotals = calculateRoutingTotals();
   
-  // Calculate GRAND TOTALS
-  const totalToolingCost = bomTotals.totalBomTooling + routingTotals.totalRoutingTooling;
-  const totalSpecificCapex = bomTotals.totalBomSpecificCapex + routingTotals.totalRoutingSpecificCapex;
+
 
   const handleOverlayClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) onClose();
