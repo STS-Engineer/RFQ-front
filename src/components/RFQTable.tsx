@@ -37,10 +37,17 @@ const RFQTable: React.FC = () => {
   });
 
   const [activeTab, setActiveTab] = useState<'PENDING' | 'CONFIRM' | 'DECLINE'>('PENDING');
-
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   useEffect(() => {
     fetchGroupedRFQs();
   }, []);
+
+  // Reset to page 1 when filters or tab changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters, searchTerm, activeTab]);
 
   const fetchGroupedRFQs = async () => {
     try {
@@ -157,6 +164,46 @@ const RFQTable: React.FC = () => {
     );
   }
 
+
+  // Pagination calculations
+  const filteredRfqs = filterRfqs(groupedRfqs[activeTab]);
+  const totalPages = Math.ceil(filteredRfqs.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedRfqs = filteredRfqs.slice(startIndex, endIndex);
+
+  const goToPage = (page: number) => {
+    setCurrentPage(Math.max(1, Math.min(page, totalPages)));
+  };
+
+  const getPaginationRange = () => {
+    const range = [];
+    const showEllipsis = totalPages > 7;
+
+    if (!showEllipsis) {
+      for (let i = 1; i <= totalPages; i++) {
+        range.push(i);
+      }
+    } else {
+      if (currentPage <= 3) {
+        for (let i = 1; i <= 5; i++) range.push(i);
+        range.push('ellipsis');
+        range.push(totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        range.push(1);
+        range.push('ellipsis');
+        for (let i = totalPages - 4; i <= totalPages; i++) range.push(i);
+      } else {
+        range.push(1);
+        range.push('ellipsis');
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) range.push(i);
+        range.push('ellipsis');
+        range.push(totalPages);
+      }
+    }
+
+    return range;
+  };
   return (
     <div className="rfq-container">
       <div className="rfq-header">
@@ -344,9 +391,104 @@ const RFQTable: React.FC = () => {
 
       {/* Table */}
       <div className="table-container no-horizontal-scroll">
-        <div className="table-header">
-          Showing {filterRfqs(groupedRfqs[activeTab]).length} of {groupedRfqs[activeTab].length} RFQs
-        </div>
+        {/* Pagination Controls */}
+        {filteredRfqs.length > 0 && (
+          <div className="pagination-container">
+            <div className="pagination-info">
+              <div className="results-count">
+                Showing {startIndex + 1} to {Math.min(endIndex, filteredRfqs.length)} of {filteredRfqs.length} RFQs
+              </div>
+
+              <div className="items-per-page">
+                <label>Items per page:</label>
+                <select
+                  value={itemsPerPage}
+                  onChange={(e) => {
+                    setItemsPerPage(Number(e.target.value));
+                    setCurrentPage(1);
+                  }}
+                >
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={25}>25</option>
+                  <option value={50}>50</option>
+                  <option value={100}>100</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="pagination-controls">
+              <div className="page-info">
+                Page {currentPage} of {totalPages}
+              </div>
+
+              <div className="pagination-buttons">
+                <button
+                  onClick={() => goToPage(1)}
+                  disabled={currentPage === 1}
+                  className="pagination-btn"
+                >
+                  First
+                </button>
+
+                <button
+                  onClick={() => goToPage(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="pagination-btn"
+                >
+                  Previous
+                </button>
+
+                <div className="page-numbers">
+                  {getPaginationRange().map((page, idx) => (
+                    page === 'ellipsis' ? (
+                      <span key={`ellipsis-${idx}`} className="ellipsis">...</span>
+                    ) : (
+                      <button
+                        key={page}
+                        onClick={() => goToPage(page as number)}
+                        className={`page-number ${currentPage === page ? 'active' : ''}`}
+                      >
+                        {page}
+                      </button>
+                    )
+                  ))}
+                </div>
+
+                <button
+                  onClick={() => goToPage(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="pagination-btn"
+                >
+                  Next
+                </button>
+
+                <button
+                  onClick={() => goToPage(totalPages)}
+                  disabled={currentPage === totalPages}
+                  className="pagination-btn"
+                >
+                  Last
+                </button>
+              </div>
+
+              <div className="jump-to-page">
+                <label>Go to page:</label>
+                <input
+                  type="number"
+                  min={1}
+                  max={totalPages}
+                  value={currentPage}
+                  onChange={(e) => {
+                    const page = parseInt(e.target.value);
+                    if (!isNaN(page)) goToPage(page);
+                  }}
+                  className="page-input"
+                />
+              </div>
+            </div>
+          </div>
+        )}
 
         <table className="rfq-table">
           <thead>
@@ -364,18 +506,18 @@ const RFQTable: React.FC = () => {
               <th>Status</th>
 
               {/* 🔥 Always show this column when on the CONFIRM tab */}
-               {/* 🔥 ALWAYS render an empty th when NOT CONFIRM */}
+              {/* 🔥 ALWAYS render an empty th when NOT CONFIRM */}
               {activeTab === 'CONFIRM' ? (
-               <th>Project Status</th>
-               ) : (
-              <th style={{ width: "0px", padding: 0, border: "none" }}></th>
+                <th>Project Status</th>
+              ) : (
+                <th style={{ width: "0px", padding: 0, border: "none" }}></th>
               )}
             </tr>
           </thead>
 
           <tbody>
-            {filterRfqs(groupedRfqs[activeTab]).length > 0 ? (
-              filterRfqs(groupedRfqs[activeTab]).map(rfq => (
+            {paginatedRfqs.length > 0 ? (
+              paginatedRfqs.map(rfq => (
                 <tr
                   key={rfq.rfq_id}
                   onClick={() => handleRowClick(rfq)}
@@ -411,14 +553,14 @@ const RFQTable: React.FC = () => {
                   </td>
 
                   {/* 🔥 Show IN COSTING only for Confirm tab */}
-              {/* Project Status column */}
-              {activeTab === "CONFIRM" ? (
-                <td>
-                <span className="status-badge costing">IN COSTING</span>
-                </td>
-                ) : (
-               <td style={{ width: "0px", padding: 0, border: "none" }}></td>
-                )}
+                  {/* Project Status column */}
+                  {activeTab === "CONFIRM" ? (
+                    <td>
+                      <span className="status-badge costing">IN COSTING</span>
+                    </td>
+                  ) : (
+                    <td style={{ width: "0px", padding: 0, border: "none" }}></td>
+                  )}
                 </tr>
               ))
             ) : (
