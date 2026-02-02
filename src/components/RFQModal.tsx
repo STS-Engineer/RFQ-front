@@ -21,12 +21,34 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
   const [zoomLevel, setZoomLevel] = useState(1);
   const [iframeKey, setIframeKey] = useState<number>(0);
   const [costingModalOpen, setCostingModalOpen] = useState(false);
+  const [pdfFiles, setPdfFiles] = useState<string[]>([]);
+  const [currentPdfIndex, setCurrentPdfIndex] = useState(0);
+  const [loading, setLoading] = useState(false);
+
   const [costingDetails, setCostingDetails] = useState(null);
   const [loadingCosting, setLoadingCosting] = useState(false);
 
   useEffect(() => {
     if (isOpen) console.log('RFQ data loaded in modal:', rfq);
   }, [isOpen, rfq]);
+
+  const parseFilePaths = (filePathString: string | string[]): string[] => {
+    if (!filePathString) return [];
+
+    // If backend later sends real array
+    if (Array.isArray(filePathString)) return filePathString;
+
+    return filePathString
+      .replace(/^{|}$/g, '')
+      .split(',')
+      .map(path => path.trim())
+      ?.filter(Boolean);
+  };
+
+
+  const files = parseFilePaths(rfq.rfq_file_path);
+
+
 
   if (!isOpen) return null;
 
@@ -47,23 +69,33 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
     return v;
   };
 
+  const openPdfGallery = (files: string[], clickedFile: string) => {
+    const onlyPdfs = files.filter(f => f.toLowerCase().endsWith('.pdf'));
+    setPdfFiles(onlyPdfs);
+    setCurrentPdfIndex(onlyPdfs.indexOf(clickedFile));
+    setPdfPreviewUrl(getFileUrl(clickedFile));
+  };
+
   const formatNumber = (val: number | undefined) => (val ? Math.round(val).toLocaleString() : '0');
 
   const getFileUrl = (filePath: string) => {
     if (!filePath) return '';
     if (filePath.startsWith('http')) return filePath;
-    return `https://rfq-back.azurewebsites.net/${filePath}`;
+
+    // ⚠ Change this to your production backend when deploying
+    return `https://rfq-back.azurewebsites.net${filePath.startsWith('/') ? '' : '/'}${filePath}`;
   };
+
 
   // ------------------- Fetch Costing Details -------------------
   const fetchCostingDetails = async () => {
     if (!rfq?.rfq_id) return;
-    
+
     setLoadingCosting(true);
     try {
       const response = await fetch(`https://rfq-back.azurewebsites.net/ajouter/costing-details/${rfq.rfq_id}`);
       const result = await response.json();
-      
+
       if (result.success) {
         setCostingDetails(result.data);
         setCostingModalOpen(true);
@@ -87,31 +119,74 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
   const handleDocumentClick = (filePath: string) => {
     if (!filePath) return;
 
+    const allFiles = parseFilePaths(rfq.rfq_file_path);
     const fileUrl = getFileUrl(filePath);
     const ext = fileUrl.split('.').pop()?.toLowerCase();
 
-    if (!ext) return alert('Unknown file type.');
+    if (!ext) {
+      toast.error('Unknown file type');
+      return;
+    }
 
+    // ✅ If NOT PDF → download
+    if (ext !== 'pdf') {
+      const link = document.createElement('a');
+      link.href = fileUrl;
+      link.download = fileUrl.split('/').pop() || 'file';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      return;
+    }
+
+    // ✅ If PDF → open gallery
+    const onlyPdfs = allFiles.filter(f =>
+      f.toLowerCase().endsWith('.pdf')
+    );
+
+    const startIndex = onlyPdfs.findIndex(f => f === filePath);
+
+    setPdfFiles(onlyPdfs);
+    setCurrentPdfIndex(startIndex >= 0 ? startIndex : 0);
+
+    setLoading(true);
     setPdfPreviewUrl(null);
 
     setTimeout(() => {
-      let previewUrl = '';
-
-      if (ext === 'pdf') {
-        previewUrl = fileUrl.includes('githubusercontent')
-          ? `https://docs.google.com/gview?url=${encodeURIComponent(fileUrl)}&embedded=true`
-          : fileUrl;
-      } else if (['xlsx', 'xls', 'docx', 'pptx'].includes(ext)) {
-        previewUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fileUrl)}`;
-      } else {
-        alert(`Unsupported file format: .${ext}`);
-        return;
-      }
-
-      setIframeKey((prev) => prev + 1);
-      setPdfPreviewUrl(previewUrl);
+      setPdfPreviewUrl(getFileUrl(onlyPdfs[startIndex]));
+      setIframeKey(prev => prev + 1);
       setZoomLevel(1);
-    }, 200);
+      setLoading(false);
+    }, 300);
+  };
+
+
+  const goToNextPdf = () => {
+    if (currentPdfIndex >= pdfFiles.length - 1) return;
+
+    const newIndex = currentPdfIndex + 1;
+    setLoading(true);
+
+    setTimeout(() => {
+      setCurrentPdfIndex(newIndex);
+      setPdfPreviewUrl(getFileUrl(pdfFiles[newIndex]));
+      setIframeKey(prev => prev + 1);
+      setLoading(false);
+    }, 300);
+  };
+
+  const goToPrevPdf = () => {
+    if (currentPdfIndex <= 0) return;
+
+    const newIndex = currentPdfIndex - 1;
+    setLoading(true);
+
+    setTimeout(() => {
+      setCurrentPdfIndex(newIndex);
+      setPdfPreviewUrl(getFileUrl(pdfFiles[newIndex]));
+      setIframeKey(prev => prev + 1);
+      setLoading(false);
+    }, 300);
   };
 
   // ------------------- Export: PDF -------------------
@@ -388,18 +463,27 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
               </div>
 
               {/* Documents */}
+              {/* Documents */}
               <div className="detail-section">
                 <h3 className="section-title">Documents</h3>
                 <div className="section-content">
-                  {rfq.rfq_file_path ? (
+                  {files.length > 0 ? (
                     <div className="detail-item full-width">
-                      <label>RFQ File</label>
-                      <button
-                        className="document-btn"
-                        onClick={() => handleDocumentClick(rfq.rfq_file_path!)}
-                      >
-                        📄 {rfq.rfq_file_path.split('/').pop()}
-                      </button>
+                      <label>RFQ Files</label>
+
+                      {files.map((file, index) => {
+                        const fileName = file.split('/').pop();
+
+                        return (
+                          <button
+                            key={index}
+                            className="document-btn"
+                            onClick={() => handleDocumentClick(file)}
+                          >
+                            📄 {fileName}
+                          </button>
+                        );
+                      })}
                     </div>
                   ) : (
                     <span>No document available</span>
@@ -412,41 +496,54 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
                     className="pdf-modal-overlay"
                     onClick={() => setPdfPreviewUrl(null)}
                   >
-                    <div className="pdf-modal" onClick={(e) => e.stopPropagation()}>
+                    <div
+                      className="pdf-modal"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <div className="pdf-modal-header">
-                        <h4>📑 {pdfPreviewUrl.split('/').pop()}</h4>
+                        <h4>
+                          📑 {pdfFiles[currentPdfIndex]?.split('/').pop()}
+                        </h4>
+
                         <div className="pdf-controls">
-                          <button onClick={() => setZoomLevel((z) => Math.min(z + 0.2, 2))}>
+                          <button
+                            disabled={currentPdfIndex === 0}
+                            onClick={goToPrevPdf}
+                          >
+                            ⬅
+                          </button>
+
+                          <button
+                            disabled={currentPdfIndex === pdfFiles.length - 1}
+                            onClick={goToNextPdf}
+                          >
+                            ➡
+                          </button>
+
+                          <button onClick={() => setZoomLevel(z => Math.min(z + 0.2, 2))}>
                             ➕
                           </button>
-                          <button onClick={() => setZoomLevel((z) => Math.max(z - 0.2, 0.6))}>
+
+                          <button onClick={() => setZoomLevel(z => Math.max(z - 0.2, 0.6))}>
                             ➖
                           </button>
-                          <button className="close-btn" onClick={() => setPdfPreviewUrl(null)}>
+
+                          <button
+                            className="close-btn"
+                            onClick={() => setPdfPreviewUrl(null)}
+                          >
                             ✖
                           </button>
                         </div>
                       </div>
-                      <div className="pdf-viewer"   
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          overflow: "auto",
-                          display: "flex",
-                          justifyContent: "center",
-                          alignItems: "flex-start",
-                          paddingTop: "20px",
-                          backgroundColor: "#f5f5f5",
-                        }}>
-                        <div style={{
-                          width: "80%",
-                          maxWidth: "1030px",
-                          height: "80%",
-                          boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-                        }}>
+
+                      <div className="pdf-viewer">
+                        {loading ? (
+                          <div className="pdf-spinner">Loading...</div>
+                        ) : (
                           <embed
                             key={iframeKey}
-                            src={`${pdfPreviewUrl}`}
+                            src={pdfPreviewUrl}
                             type="application/pdf"
                             style={{
                               width: '100%',
@@ -456,7 +553,7 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
                               transformOrigin: 'center top',
                             }}
                           />
-                        </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -468,7 +565,7 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
                 <div className="detail-section">
                   <h3 className="section-title">Costing</h3>
                   <div className="section-content">
-                    
+
                     {/* View Costing Details Button */}
                     <div className="detail-item full-width">
                       <button
@@ -494,9 +591,9 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
                         {loadingCosting ? 'Loading...' : 'View Costing Details'}
                       </button>
                     </div>
-              
 
-            
+
+
                   </div>
                 </div>
               )}
