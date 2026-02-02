@@ -69,12 +69,6 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
     return v;
   };
 
-  const openPdfGallery = (files: string[], clickedFile: string) => {
-    const onlyPdfs = files.filter(f => f.toLowerCase().endsWith('.pdf'));
-    setPdfFiles(onlyPdfs);
-    setCurrentPdfIndex(onlyPdfs.indexOf(clickedFile));
-    setPdfPreviewUrl(getFileUrl(clickedFile));
-  };
 
   const formatNumber = (val: number | undefined) => (val ? Math.round(val).toLocaleString() : '0');
 
