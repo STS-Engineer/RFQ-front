@@ -24,13 +24,20 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
   const [pdfFiles, setPdfFiles] = useState<string[]>([]);
   const [currentPdfIndex, setCurrentPdfIndex] = useState(0);
   const [loading, setLoading] = useState(false);
-
   const [costingDetails, setCostingDetails] = useState(null);
   const [loadingCosting, setLoadingCosting] = useState(false);
+  const [selectedCostingFile, setSelectedCostingFile] = useState<File | null>(null);
+  const [uploadingCostingFile, setUploadingCostingFile] = useState(false);
+  const [costingFileUrl, setCostingFileUrl] = useState<string | null>(rfq.costingfile || null);
 
   useEffect(() => {
     if (isOpen) console.log('RFQ data loaded in modal:', rfq);
   }, [isOpen, rfq]);
+
+
+  useEffect(() => {
+    setCostingFileUrl(rfq.costingfile || null);
+  }, [rfq]);
 
   const parseFilePaths = (filePathString: string | string[]): string[] => {
     if (!filePathString) return [];
@@ -69,7 +76,6 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
     return v;
   };
 
-
   const formatNumber = (val: number | undefined) => (val ? Math.round(val).toLocaleString() : '0');
 
   const getFileUrl = (filePath: string) => {
@@ -79,6 +85,62 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
     // ⚠ Change this to your production backend when deploying
     return `https://rfq-back.azurewebsites.net${filePath.startsWith('/') ? '' : '/'}${filePath}`;
   };
+
+
+  const handleCostingFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setSelectedCostingFile(e.target.files[0]);
+    }
+  };
+
+  const uploadCostingFile = async () => {
+    if (!selectedCostingFile || !rfq?.rfq_id) {
+      toast.error("Please select a file first.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", selectedCostingFile);
+
+    setUploadingCostingFile(true);
+
+    try {
+      const response = await fetch(
+        `https://rfq-back.azurewebsites.net/ajouter/rfq/${rfq.rfq_id}/upload`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Upload failed");
+      }
+
+      // ✅ SUCCESS MESSAGE
+      toast.success(result.message || "Costing file uploaded successfully 🎉");
+
+      // update UI
+      if (result?.rfq?.costingfile) {
+        const filePath = result.rfq.costingfile;
+        const fullUrl = filePath.startsWith("http")
+          ? filePath
+          : `https://rfq-back.azurewebsites.net${filePath.startsWith("/") ? "" : "/"}${filePath}`;
+
+        setCostingFileUrl(fullUrl);
+      }
+
+      setSelectedCostingFile(null);
+
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.message || "Failed to upload costing file");
+    } finally {
+      setUploadingCostingFile(false);
+    }
+  };;
 
 
   // ------------------- Fetch Costing Details -------------------
@@ -556,40 +618,96 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
 
               {/* Costing Section */}
               {rfq.status === 'CONFIRM' && (
-                <div className="detail-section">
-                  <h3 className="section-title">Costing</h3>
-                  <div className="section-content">
+                <>
+                  <div className="detail-section costing-file-section">
+                    <h3 className="section-title">Costing File</h3>
 
-                    {/* View Costing Details Button */}
-                    <div className="detail-item full-width">
-                      <button
-                        className="view-costing-btn"
-                        onClick={fetchCostingDetails}
-                        disabled={loadingCosting}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px',
-                          padding: '10px 16px',
-                          backgroundColor: '#4CAF50',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '4px',
-                          cursor: 'pointer',
-                          fontSize: '14px',
-                          fontWeight: '500',
-                          marginBottom: '15px'
-                        }}
-                      >
-                        <Eye size={18} />
-                        {loadingCosting ? 'Loading...' : 'View Costing Details'}
-                      </button>
+                    <div className="section-content">
+                      <div className="costing-upload-card">
+                        <div className="costing-upload-top">
+                          <div>
+                            <label className="costing-upload-label">Upload Costing File</label>
+                            <p className="costing-upload-subtitle">
+                              Add the latest costing document for this RFQ
+                            </p>
+                          </div>
+                        </div>
+
+                        <label className="custom-file-upload">
+                          <input
+                            type="file"
+                            onChange={handleCostingFileChange}
+                            accept=".pdf,.xlsx,.xls,.doc,.docx,.png,.jpg,.jpeg"
+                            className="hidden-file-input"
+                          />
+
+                          <div className="upload-placeholder">
+                            <div className="upload-icon-circle">📁</div>
+                            <div className="upload-text-group">
+                              <span className="upload-main-text">Choose a file</span>
+                              <span className="upload-sub-text">
+                                PDF, Excel, Word, PNG or JPG
+                              </span>
+                            </div>
+                          </div>
+                        </label>
+
+                        {selectedCostingFile && (
+                          <div className="selected-file-box">
+                            <span className="selected-file-icon">📄</span>
+                            <div className="selected-file-info">
+                              <span className="selected-file-name">{selectedCostingFile.name}</span>
+                              <span className="selected-file-size">
+                                {(selectedCostingFile.size / 1024 / 1024).toFixed(2)} MB
+                              </span>
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="costing-upload-actions">
+                          <button
+                            onClick={uploadCostingFile}
+                            disabled={!selectedCostingFile || uploadingCostingFile}
+                            className="costing-upload-btn"
+                          >
+                            {uploadingCostingFile ? 'Uploading...' : 'Upload Costing File'}
+                          </button>
+                        </div>
+                      </div>
                     </div>
-
-
-
                   </div>
-                </div>
+                  <div className="detail-section">
+                    <h3 className="section-title">Costing</h3>
+                    <div className="section-content">
+                      <div className="detail-item full-width">
+                        <button
+                          className="view-costing-btn"
+                          onClick={fetchCostingDetails}
+                          disabled={loadingCosting}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            padding: '10px 16px',
+                            backgroundColor: '#4CAF50',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            fontSize: '14px',
+                            fontWeight: '500',
+                            marginBottom: '15px'
+                          }}
+                        >
+                          <Eye size={18} />
+                          {loadingCosting ? 'Loading...' : 'View Costing Details'}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+
+                </>
               )}
             </div>
           </div>
