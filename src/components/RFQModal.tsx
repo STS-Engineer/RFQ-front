@@ -28,16 +28,14 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
   const [loadingCosting, setLoadingCosting] = useState(false);
   const [selectedCostingFile, setSelectedCostingFile] = useState<File | null>(null);
   const [uploadingCostingFile, setUploadingCostingFile] = useState(false);
-  const [costingFileUrl, setCostingFileUrl] = useState<string | null>(rfq.costingfile || null);
+
 
   useEffect(() => {
     if (isOpen) console.log('RFQ data loaded in modal:', rfq);
   }, [isOpen, rfq]);
 
 
-  useEffect(() => {
-    setCostingFileUrl(rfq.costingfile || null);
-  }, [rfq]);
+
 
   const parseFilePaths = (filePathString: string | string[]): string[] => {
     if (!filePathString) return [];
@@ -122,15 +120,6 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
       // ✅ SUCCESS MESSAGE
       toast.success(result.message || "Costing file uploaded successfully 🎉");
 
-      // update UI
-      if (result?.rfq?.costingfile) {
-        const filePath = result.rfq.costingfile;
-        const fullUrl = filePath.startsWith("http")
-          ? filePath
-          : `https://rfq-back.azurewebsites.net${filePath.startsWith("/") ? "" : "/"}${filePath}`;
-
-        setCostingFileUrl(fullUrl);
-      }
 
       setSelectedCostingFile(null);
 
