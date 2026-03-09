@@ -145,7 +145,7 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
         setCostingDetails(result.data);
         setCostingModalOpen(true);
       } else {
-        toast.error('Failed to fetch costing details: ' + result.message);
+        toast.error(result.message);
       }
     } catch (error) {
       console.error('Error fetching costing details:', error);
