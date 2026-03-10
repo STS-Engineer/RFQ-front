@@ -28,14 +28,16 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
   const [loadingCosting, setLoadingCosting] = useState(false);
   const [selectedCostingFile, setSelectedCostingFile] = useState<File | null>(null);
   const [uploadingCostingFile, setUploadingCostingFile] = useState(false);
-
+  const [costingFileUrl, setCostingFileUrl] = useState<string | null>(rfq.costingfile || null);
 
   useEffect(() => {
     if (isOpen) console.log('RFQ data loaded in modal:', rfq);
   }, [isOpen, rfq]);
 
 
-
+  useEffect(() => {
+    setCostingFileUrl(rfq.costingfile || null);
+  }, [rfq]);
 
   const parseFilePaths = (filePathString: string | string[]): string[] => {
     if (!filePathString) return [];
@@ -53,7 +55,7 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
 
   const files = parseFilePaths(rfq.rfq_file_path);
 
-
+  const costingFiles = costingFileUrl ? parseFilePaths(costingFileUrl) : [];
 
   if (!isOpen) return null;
 
@@ -120,6 +122,10 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
       // ✅ SUCCESS MESSAGE
       toast.success(result.message || "Costing file uploaded successfully 🎉");
 
+      // update UI
+      if (result?.rfq?.costingfile) {
+        setCostingFileUrl(result.rfq.costingfile);
+      }
 
       setSelectedCostingFile(null);
 
@@ -145,7 +151,7 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
         setCostingDetails(result.data);
         setCostingModalOpen(true);
       } else {
-        toast.error(result.message);
+        toast.error('Failed to fetch costing details: ' + result.message);
       }
     } catch (error) {
       console.error('Error fetching costing details:', error);
@@ -161,10 +167,14 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
   };
 
   // ------------------- Document Handling -------------------
-  const handleDocumentClick = (filePath: string) => {
+  const handleDocumentClick = (filePath: string, source: 'rfq' | 'costing' = 'rfq') => {
     if (!filePath) return;
 
-    const allFiles = parseFilePaths(rfq.rfq_file_path);
+    const allFiles =
+      source === 'costing'
+        ? (costingFileUrl ? parseFilePaths(costingFileUrl) : [])
+        : parseFilePaths(rfq.rfq_file_path);
+
     const fileUrl = getFileUrl(filePath);
     const ext = fileUrl.split('.').pop()?.toLowerCase();
 
@@ -173,7 +183,7 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
       return;
     }
 
-    // ✅ If NOT PDF → download
+    // Non-PDF => download directly
     if (ext !== 'pdf') {
       const link = document.createElement('a');
       link.href = fileUrl;
@@ -184,12 +194,14 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
       return;
     }
 
-    // ✅ If PDF → open gallery
-    const onlyPdfs = allFiles.filter(f =>
-      f.toLowerCase().endsWith('.pdf')
-    );
-
+    // PDF => preview modal
+    const onlyPdfs = allFiles.filter(f => f.toLowerCase().endsWith('.pdf'));
     const startIndex = onlyPdfs.findIndex(f => f === filePath);
+
+    if (onlyPdfs.length === 0) {
+      window.open(fileUrl, '_blank');
+      return;
+    }
 
     setPdfFiles(onlyPdfs);
     setCurrentPdfIndex(startIndex >= 0 ? startIndex : 0);
@@ -198,7 +210,7 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
     setPdfPreviewUrl(null);
 
     setTimeout(() => {
-      setPdfPreviewUrl(getFileUrl(onlyPdfs[startIndex]));
+      setPdfPreviewUrl(getFileUrl(onlyPdfs[startIndex >= 0 ? startIndex : 0]));
       setIframeKey(prev => prev + 1);
       setZoomLevel(1);
       setLoading(false);
@@ -662,6 +674,26 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
                             {uploadingCostingFile ? 'Uploading...' : 'Upload Costing File'}
                           </button>
                         </div>
+
+                        {costingFiles.length > 0 && (
+                          <div className="detail-item full-width" style={{ marginTop: '16px' }}>
+                            <label>Uploaded Costing File</label>
+
+                            {costingFiles.map((file, index) => {
+                              const fileName = file.split('/').pop();
+
+                              return (
+                                <button
+                                  key={index}
+                                  className="document-btn"
+                                  onClick={() => handleDocumentClick(file, 'costing')}
+                                >
+                                  📄 {fileName}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
