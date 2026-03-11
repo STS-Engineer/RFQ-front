@@ -861,36 +861,6 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
                     </div>
                   </div>
 
-                  {/* ── 3. COSTING DETAILS ── */}
-                  <div className="detail-section">
-                    <h3 className="section-title">Costing</h3>
-                    <div className="section-content">
-                      <div className="detail-item full-width">
-                        <button
-                          className="view-costing-btn"
-                          onClick={fetchCostingDetails}
-                          disabled={loadingCosting}
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            padding: '10px 16px',
-                            backgroundColor: '#4CAF50',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: 'pointer',
-                            fontSize: '14px',
-                            fontWeight: '500',
-                            marginBottom: '15px',
-                          }}
-                        >
-                          <Eye size={18} />
-                          {loadingCosting ? 'Loading...' : 'View Costing Details'}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
                 </>
               )}
 
