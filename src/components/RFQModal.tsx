@@ -19,7 +19,6 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
   const [pdfPreviewUrl, setPdfPreviewUrl] = useState<string | null>(null);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [iframeKey, setIframeKey] = useState<number>(0);
-  const [costingModalOpen, setCostingModalOpen] = useState(false);
   const [pdfFiles, setPdfFiles] = useState<string[]>([]);
   const [currentPdfIndex, setCurrentPdfIndex] = useState(0);
   const [loading, setLoading] = useState(false);
