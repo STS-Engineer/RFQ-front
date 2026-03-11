@@ -7,8 +7,8 @@ import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import { UserCheck, UserPlus, Sparkles, Eye } from 'lucide-react';
 import logo from '../assets/logo-avocarbon-1-removebg-preview.png';
-import CostingDetailsModal from './CostingDetailsModal.tsx'; // Import the costing modal
-import { toast } from 'react-toastify'; // Add if not already imported
+import CostingDetailsModal from './CostingDetailsModal.tsx';
+import { toast } from 'react-toastify';
 
 interface RFQModalProps {
   rfq: RFQ;
@@ -26,23 +26,28 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
   const [loading, setLoading] = useState(false);
   const [costingDetails, setCostingDetails] = useState(null);
   const [loadingCosting, setLoadingCosting] = useState(false);
+
+  // Costing file states
   const [selectedCostingFile, setSelectedCostingFile] = useState<File | null>(null);
   const [uploadingCostingFile, setUploadingCostingFile] = useState(false);
   const [costingFileUrl, setCostingFileUrl] = useState<string | null>(rfq.costingfile || null);
+
+  // Feasibility file states
+  const [selectedFeasabilityFile, setSelectedFeasabilityFile] = useState<File | null>(null);
+  const [uploadingFeasabilityFile, setUploadingFeasabilityFile] = useState(false);
+  const [feasabilityFileUrl, setFeasabilityFileUrl] = useState<string | null>(rfq.feasabilityfile || null);
 
   useEffect(() => {
     if (isOpen) console.log('RFQ data loaded in modal:', rfq);
   }, [isOpen, rfq]);
 
-
   useEffect(() => {
     setCostingFileUrl(rfq.costingfile || null);
+    setFeasabilityFileUrl(rfq.feasabilityfile || null);
   }, [rfq]);
 
   const parseFilePaths = (filePathString: string | string[]): string[] => {
     if (!filePathString) return [];
-
-    // If backend later sends real array
     if (Array.isArray(filePathString)) return filePathString;
 
     return filePathString
@@ -52,10 +57,12 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
       ?.filter(Boolean);
   };
 
-
   const files = parseFilePaths(rfq.rfq_file_path);
-
   const costingFiles = costingFileUrl ? parseFilePaths(costingFileUrl) : [];
+  const feasabilityFiles = feasabilityFileUrl ? parseFilePaths(feasabilityFileUrl) : [];
+
+  // Costing upload is only enabled once a feasibility file has been uploaded
+  const isFeasabilitySubmitted = feasabilityFiles.length > 0;
 
   if (!isOpen) return null;
 
@@ -81,12 +88,58 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
   const getFileUrl = (filePath: string) => {
     if (!filePath) return '';
     if (filePath.startsWith('http')) return filePath;
-
-    // ⚠ Change this to your production backend when deploying
     return `https://rfq-back.azurewebsites.net${filePath.startsWith('/') ? '' : '/'}${filePath}`;
   };
 
+  // ------------------- Feasibility File Handlers -------------------
+  const handleFeasabilityFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setSelectedFeasabilityFile(e.target.files[0]);
+    }
+  };
 
+  const uploadFeasabilityFile = async () => {
+    if (!selectedFeasabilityFile || !rfq?.rfq_id) {
+      toast.error('Please select a file first.');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', selectedFeasabilityFile);
+
+    setUploadingFeasabilityFile(true);
+
+    try {
+      const response = await fetch(
+        `https://rfq-back.azurewebsites.net/ajouter/rfq/${rfq.rfq_id}/upload-feasibility`,
+        {
+          method: 'POST',
+          body: formData,
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Upload failed');
+      }
+
+      toast.success(result.message || 'Feasibility file uploaded successfully 🎉');
+
+      if (result?.rfq?.feasabilityfile) {
+        setFeasabilityFileUrl(result.rfq.feasabilityfile);
+      }
+
+      setSelectedFeasabilityFile(null);
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.message || 'Failed to upload feasibility file');
+    } finally {
+      setUploadingFeasabilityFile(false);
+    }
+  };
+
+  // ------------------- Costing File Handlers -------------------
   const handleCostingFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       setSelectedCostingFile(e.target.files[0]);
@@ -95,12 +148,17 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
 
   const uploadCostingFile = async () => {
     if (!selectedCostingFile || !rfq?.rfq_id) {
-      toast.error("Please select a file first.");
+      toast.error('Please select a file first.');
+      return;
+    }
+
+    if (!isFeasabilitySubmitted) {
+      toast.warning('Please upload the feasibility file before uploading the costing file.');
       return;
     }
 
     const formData = new FormData();
-    formData.append("file", selectedCostingFile);
+    formData.append('file', selectedCostingFile);
 
     setUploadingCostingFile(true);
 
@@ -108,7 +166,7 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
       const response = await fetch(
         `https://rfq-back.azurewebsites.net/ajouter/rfq/${rfq.rfq_id}/upload`,
         {
-          method: "POST",
+          method: 'POST',
           body: formData,
         }
       );
@@ -116,27 +174,23 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.message || "Upload failed");
+        throw new Error(result.message || 'Upload failed');
       }
 
-      // ✅ SUCCESS MESSAGE
-      toast.success(result.message || "Costing file uploaded successfully 🎉");
+      toast.success(result.message || 'Costing file uploaded successfully 🎉');
 
-      // update UI
       if (result?.rfq?.costingfile) {
         setCostingFileUrl(result.rfq.costingfile);
       }
 
       setSelectedCostingFile(null);
-
     } catch (error: any) {
       console.error(error);
-      toast.error(error.message || "Failed to upload costing file");
+      toast.error(error.message || 'Failed to upload costing file');
     } finally {
       setUploadingCostingFile(false);
     }
-  };;
-
+  };
 
   // ------------------- Fetch Costing Details -------------------
   const fetchCostingDetails = async () => {
@@ -167,13 +221,17 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
   };
 
   // ------------------- Document Handling -------------------
-  const handleDocumentClick = (filePath: string, source: 'rfq' | 'costing' = 'rfq') => {
+  const handleDocumentClick = (filePath: string, source: 'rfq' | 'costing' | 'feasability' = 'rfq') => {
     if (!filePath) return;
 
-    const allFiles =
-      source === 'costing'
-        ? (costingFileUrl ? parseFilePaths(costingFileUrl) : [])
-        : parseFilePaths(rfq.rfq_file_path);
+    let allFiles: string[] = [];
+    if (source === 'costing') {
+      allFiles = costingFileUrl ? parseFilePaths(costingFileUrl) : [];
+    } else if (source === 'feasability') {
+      allFiles = feasabilityFileUrl ? parseFilePaths(feasabilityFileUrl) : [];
+    } else {
+      allFiles = parseFilePaths(rfq.rfq_file_path);
+    }
 
     const fileUrl = getFileUrl(filePath);
     const ext = fileUrl.split('.').pop()?.toLowerCase();
@@ -183,7 +241,6 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
       return;
     }
 
-    // Non-PDF => download directly
     if (ext !== 'pdf') {
       const link = document.createElement('a');
       link.href = fileUrl;
@@ -194,7 +251,6 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
       return;
     }
 
-    // PDF => preview modal
     const onlyPdfs = allFiles.filter(f => f.toLowerCase().endsWith('.pdf'));
     const startIndex = onlyPdfs.findIndex(f => f === filePath);
 
@@ -217,13 +273,10 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
     }, 300);
   };
 
-
   const goToNextPdf = () => {
     if (currentPdfIndex >= pdfFiles.length - 1) return;
-
     const newIndex = currentPdfIndex + 1;
     setLoading(true);
-
     setTimeout(() => {
       setCurrentPdfIndex(newIndex);
       setPdfPreviewUrl(getFileUrl(pdfFiles[newIndex]));
@@ -234,10 +287,8 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
 
   const goToPrevPdf = () => {
     if (currentPdfIndex <= 0) return;
-
     const newIndex = currentPdfIndex - 1;
     setLoading(true);
-
     setTimeout(() => {
       setCurrentPdfIndex(newIndex);
       setPdfPreviewUrl(getFileUrl(pdfFiles[newIndex]));
@@ -520,17 +571,14 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
               </div>
 
               {/* Documents */}
-              {/* Documents */}
               <div className="detail-section">
                 <h3 className="section-title">Documents</h3>
                 <div className="section-content">
                   {files.length > 0 ? (
                     <div className="detail-item full-width">
                       <label>RFQ Files</label>
-
                       {files.map((file, index) => {
                         const fileName = file.split('/').pop();
-
                         return (
                           <button
                             key={index}
@@ -558,42 +606,15 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
                       onClick={(e) => e.stopPropagation()}
                     >
                       <div className="pdf-modal-header">
-                        <h4>
-                          📑 {pdfFiles[currentPdfIndex]?.split('/').pop()}
-                        </h4>
-
+                        <h4>📑 {pdfFiles[currentPdfIndex]?.split('/').pop()}</h4>
                         <div className="pdf-controls">
-                          <button
-                            disabled={currentPdfIndex === 0}
-                            onClick={goToPrevPdf}
-                          >
-                            ⬅
-                          </button>
-
-                          <button
-                            disabled={currentPdfIndex === pdfFiles.length - 1}
-                            onClick={goToNextPdf}
-                          >
-                            ➡
-                          </button>
-
-                          <button onClick={() => setZoomLevel(z => Math.min(z + 0.2, 2))}>
-                            ➕
-                          </button>
-
-                          <button onClick={() => setZoomLevel(z => Math.max(z - 0.2, 0.6))}>
-                            ➖
-                          </button>
-
-                          <button
-                            className="close-btn"
-                            onClick={() => setPdfPreviewUrl(null)}
-                          >
-                            ✖
-                          </button>
+                          <button disabled={currentPdfIndex === 0} onClick={goToPrevPdf}>⬅</button>
+                          <button disabled={currentPdfIndex === pdfFiles.length - 1} onClick={goToNextPdf}>➡</button>
+                          <button onClick={() => setZoomLevel(z => Math.min(z + 0.2, 2))}>➕</button>
+                          <button onClick={() => setZoomLevel(z => Math.max(z - 0.2, 0.6))}>➖</button>
+                          <button className="close-btn" onClick={() => setPdfPreviewUrl(null)}>✖</button>
                         </div>
                       </div>
-
                       <div className="pdf-viewer">
                         {loading ? (
                           <div className="pdf-spinner">Loading...</div>
@@ -617,19 +638,156 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
                 )}
               </div>
 
-              {/* Costing Section */}
+              {/* ── CONFIRM-only sections ─────────────────────────────────────── */}
               {rfq.status === 'CONFIRM' && (
                 <>
+                  {/* ── 1. FEASIBILITY FILE (must be uploaded first) ── */}
                   <div className="detail-section costing-file-section">
-                    <h3 className="section-title">Costing File</h3>
+                    <h3 className="section-title">Feasibility File</h3>
 
                     <div className="section-content">
                       <div className="costing-upload-card">
                         <div className="costing-upload-top">
                           <div>
+                            <label className="costing-upload-label">Upload Feasibility File</label>
+                            <p className="costing-upload-subtitle">
+                              This file is required before the costing file can be submitted
+                            </p>
+                          </div>
+
+                          {/* Status badge */}
+                          {isFeasabilitySubmitted ? (
+                            <span
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                padding: '4px 10px',
+                                backgroundColor: '#e6f4ea',
+                                color: '#1e7e34',
+                                borderRadius: '12px',
+                                fontSize: '12px',
+                                fontWeight: 600,
+                                whiteSpace: 'nowrap',
+                              }}
+                            >
+                              ✅ Submitted
+                            </span>
+                          ) : (
+                            <span
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                padding: '4px 10px',
+                                backgroundColor: '#fff3cd',
+                                color: '#856404',
+                                borderRadius: '12px',
+                                fontSize: '12px',
+                                fontWeight: 600,
+                                whiteSpace: 'nowrap',
+                              }}
+                            >
+                              ⏳ Pending
+                            </span>
+                          )}
+                        </div>
+
+                        <label className="custom-file-upload">
+                          <input
+                            type="file"
+                            onChange={handleFeasabilityFileChange}
+                            accept=".pdf,.xlsx,.xls,.doc,.docx,.png,.jpg,.jpeg"
+                            className="hidden-file-input"
+                          />
+                          <div className="upload-placeholder">
+                            <div className="upload-icon-circle">📁</div>
+                            <div className="upload-text-group">
+                              <span className="upload-main-text">Choose a file</span>
+                              <span className="upload-sub-text">PDF, Excel, Word, PNG or JPG</span>
+                            </div>
+                          </div>
+                        </label>
+
+                        {selectedFeasabilityFile && (
+                          <div className="selected-file-box">
+                            <span className="selected-file-icon">📄</span>
+                            <div className="selected-file-info">
+                              <span className="selected-file-name">{selectedFeasabilityFile.name}</span>
+                              <span className="selected-file-size">
+                                {(selectedFeasabilityFile.size / 1024 / 1024).toFixed(2)} MB
+                              </span>
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="costing-upload-actions">
+                          <button
+                            onClick={uploadFeasabilityFile}
+                            disabled={!selectedFeasabilityFile || uploadingFeasabilityFile}
+                            className="costing-upload-btn"
+                          >
+                            {uploadingFeasabilityFile ? 'Uploading...' : 'Upload Feasibility File'}
+                          </button>
+                        </div>
+
+                        {/* Show uploaded feasibility file(s) */}
+                        {feasabilityFiles.length > 0 && (
+                          <div className="detail-item full-width" style={{ marginTop: '16px' }}>
+                            <label>Uploaded Feasibility File</label>
+                            {feasabilityFiles.map((file, index) => {
+                              const fileName = file.split('/').pop();
+                              return (
+                                <button
+                                  key={index}
+                                  className="document-btn"
+                                  onClick={() => handleDocumentClick(file, 'feasability')}
+                                >
+                                  📄 {fileName}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ── 2. COSTING FILE (locked until feasibility is submitted) ── */}
+                  <div className="detail-section costing-file-section">
+                    <h3 className="section-title">
+                      Costing File
+                      {!isFeasabilitySubmitted && (
+                        <span
+                          style={{
+                            marginLeft: '10px',
+                            fontSize: '12px',
+                            fontWeight: 500,
+                            color: '#dc3545',
+                            verticalAlign: 'middle',
+                          }}
+                        >
+                          🔒 Requires feasibility file first
+                        </span>
+                      )}
+                    </h3>
+
+                    <div className="section-content">
+                      <div
+                        className="costing-upload-card"
+                        style={{
+                          opacity: isFeasabilitySubmitted ? 1 : 0.55,
+                          pointerEvents: isFeasabilitySubmitted ? 'auto' : 'none',
+                          transition: 'opacity 0.3s ease',
+                        }}
+                      >
+                        <div className="costing-upload-top">
+                          <div>
                             <label className="costing-upload-label">Upload Costing File</label>
                             <p className="costing-upload-subtitle">
-                              Add the latest costing document for this RFQ
+                              {isFeasabilitySubmitted
+                                ? 'Add the latest costing document for this RFQ'
+                                : 'Upload the feasibility file above to unlock this section'}
                             </p>
                           </div>
                         </div>
@@ -640,14 +798,20 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
                             onChange={handleCostingFileChange}
                             accept=".pdf,.xlsx,.xls,.doc,.docx,.png,.jpg,.jpeg"
                             className="hidden-file-input"
+                            disabled={!isFeasabilitySubmitted}
                           />
-
                           <div className="upload-placeholder">
-                            <div className="upload-icon-circle">📁</div>
+                            <div className="upload-icon-circle">
+                              {isFeasabilitySubmitted ? '📁' : '🔒'}
+                            </div>
                             <div className="upload-text-group">
-                              <span className="upload-main-text">Choose a file</span>
+                              <span className="upload-main-text">
+                                {isFeasabilitySubmitted ? 'Choose a file' : 'Locked'}
+                              </span>
                               <span className="upload-sub-text">
-                                PDF, Excel, Word, PNG or JPG
+                                {isFeasabilitySubmitted
+                                  ? 'PDF, Excel, Word, PNG or JPG'
+                                  : 'Submit the feasibility file first'}
                               </span>
                             </div>
                           </div>
@@ -668,20 +832,19 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
                         <div className="costing-upload-actions">
                           <button
                             onClick={uploadCostingFile}
-                            disabled={!selectedCostingFile || uploadingCostingFile}
+                            disabled={!selectedCostingFile || uploadingCostingFile || !isFeasabilitySubmitted}
                             className="costing-upload-btn"
                           >
                             {uploadingCostingFile ? 'Uploading...' : 'Upload Costing File'}
                           </button>
                         </div>
 
+                        {/* Show uploaded costing file(s) */}
                         {costingFiles.length > 0 && (
                           <div className="detail-item full-width" style={{ marginTop: '16px' }}>
                             <label>Uploaded Costing File</label>
-
                             {costingFiles.map((file, index) => {
                               const fileName = file.split('/').pop();
-
                               return (
                                 <button
                                   key={index}
@@ -697,6 +860,8 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
                       </div>
                     </div>
                   </div>
+
+                  {/* ── 3. COSTING DETAILS ── */}
                   <div className="detail-section">
                     <h3 className="section-title">Costing</h3>
                     <div className="section-content">
@@ -717,7 +882,7 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
                             cursor: 'pointer',
                             fontSize: '14px',
                             fontWeight: '500',
-                            marginBottom: '15px'
+                            marginBottom: '15px',
                           }}
                         >
                           <Eye size={18} />
@@ -726,10 +891,9 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
                       </div>
                     </div>
                   </div>
-
-
                 </>
               )}
+
             </div>
           </div>
 
