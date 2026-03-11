@@ -7,7 +7,6 @@ import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import { UserCheck, UserPlus, Sparkles} from 'lucide-react';
 import logo from '../assets/logo-avocarbon-1-removebg-preview.png';
-import CostingDetailsModal from './CostingDetailsModal.tsx';
 import { toast } from 'react-toastify';
 
 interface RFQModalProps {
@@ -24,7 +23,6 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
   const [pdfFiles, setPdfFiles] = useState<string[]>([]);
   const [currentPdfIndex, setCurrentPdfIndex] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [costingDetails, setCostingDetails] = useState(null);
   
 
   // Costing file states
@@ -857,15 +855,7 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
         </div>
       </div>
 
-      {/* Costing Details Modal */}
-      {costingModalOpen && (
-        <CostingDetailsModal
-          open={costingModalOpen}
-          onClose={() => setCostingModalOpen(false)}
-          rfqId={rfq.rfq_id}
-          initialData={costingDetails}
-        />
-      )}
+  
     </>
   );
 };
