@@ -5,7 +5,7 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
-import { UserCheck, UserPlus, Sparkles, Eye } from 'lucide-react';
+import { UserCheck, UserPlus, Sparkles} from 'lucide-react';
 import logo from '../assets/logo-avocarbon-1-removebg-preview.png';
 import CostingDetailsModal from './CostingDetailsModal.tsx';
 import { toast } from 'react-toastify';
@@ -25,7 +25,7 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
   const [currentPdfIndex, setCurrentPdfIndex] = useState(0);
   const [loading, setLoading] = useState(false);
   const [costingDetails, setCostingDetails] = useState(null);
-  const [loadingCosting, setLoadingCosting] = useState(false);
+  
 
   // Costing file states
   const [selectedCostingFile, setSelectedCostingFile] = useState<File | null>(null);
@@ -192,28 +192,7 @@ const RFQModal: React.FC<RFQModalProps> = ({ rfq, isOpen, onClose }) => {
     }
   };
 
-  // ------------------- Fetch Costing Details -------------------
-  const fetchCostingDetails = async () => {
-    if (!rfq?.rfq_id) return;
 
-    setLoadingCosting(true);
-    try {
-      const response = await fetch(`https://rfq-back.azurewebsites.net/ajouter/costing-details/${rfq.rfq_id}`);
-      const result = await response.json();
-
-      if (result.success) {
-        setCostingDetails(result.data);
-        setCostingModalOpen(true);
-      } else {
-        toast.error('Failed to fetch costing details: ' + result.message);
-      }
-    } catch (error) {
-      console.error('Error fetching costing details:', error);
-      toast.error('Error fetching costing details. Please try again.');
-    } finally {
-      setLoadingCosting(false);
-    }
-  };
 
   // ------------------- Overlay Click -------------------
   const handleOverlayClick = (e: React.MouseEvent) => {
